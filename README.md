@@ -1,6 +1,6 @@
-# vue-todo
+# treeforce
 
-> First Vue app to check out Vue, GraphQL, Vuex, and MongoDB
+> Vue app to build Org Hierarchies with Salesforce Data in Vue, GraphQL, Vuex, and Heroku Connect
 
 ## Build Setup
 
