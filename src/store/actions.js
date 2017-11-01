@@ -11,8 +11,13 @@ export default {
                         query {
                             allAccounts {
                                 nodes {
-                                    id
                                     name
+                                    id
+                                    sfid
+                                    nodeId
+                                    createddate
+                                    isdeleted
+                                    systemmodstamp
                                 }
                             }
                         }
@@ -20,6 +25,50 @@ export default {
                 }
             )
             commit('fetchAccounts', response.body.data.allAccounts.nodes)
+        } catch (e) {
+            throw e
+        }
+    },
+    async fetchContacts ({ commit }, sfid) {
+        try {
+            const response = await Vue.http.post(
+                graphURL,
+                {
+                    query: `
+                        query {
+                            allContacts (condition: {accountid: "${sfid}"}) {
+                                nodes {
+                                    lastname
+                                    accountid
+                                    name
+                                    mobilephone
+                                    phone
+                                    isdeleted
+                                    homephone
+                                    systemmodstamp
+                                    reportstoid
+                                    createddate
+                                    salutation
+                                    title
+                                    firstname
+                                    email
+                                    description
+                                    photourl
+                                    sfid
+                                    id
+                                    _hcLastop
+                                    _hcErr
+                                }
+                            }
+                        }
+                    `
+                }
+            )
+            // commit('fetchAccount', {
+            //     sfid,
+            //     contacts: response.body.data.allContacts.nodes
+            // })
+            return response.body.data.allContacts.nodes
         } catch (e) {
             throw e
         }

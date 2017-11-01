@@ -2,6 +2,10 @@ export default {
     fetchAccounts (state, accounts) {
         state.accounts = accounts
     }
+    // fetchAccount (state, { sfid, contacts }) {
+    //     const account = _.findWhere(state.accounts, { sfid })
+    //     account.contacts = contacts
+    // }
     // addTodo (state, todo) {
     //     state.todos.push(todo)
     // },

@@ -1,5 +1,5 @@
 <template>
-    <div class="account-wrapper">
+    <div class="accounts-wrapper">
         <div class="accounts">
             <div
                 v-for="account in accounts"
@@ -33,7 +33,7 @@
                     hollow
                     @click="removeAccount(account)"
                 /> -->
-                <span>{{account.name}}</span>
+                <router-link :to="{ name: 'account', params: { id: account.sfid }}">{{account.name}}</router-link>
             </div>
         </div>
     </div>
@@ -96,7 +96,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 
-.account-wrapper {
+.accounts-wrapper {
     padding: 10vh 10vw;
     .accounts {
         .account {
