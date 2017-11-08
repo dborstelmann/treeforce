@@ -1,39 +1,46 @@
 <template>
     <div class="accounts-wrapper">
-        <div class="accounts">
-            <div
-                v-for="account in accounts"
-                class="account row at-row"
-                :key="account.id"
-            >
-                <!-- <at-input
-                    class="edit-account account-input"
-                    placeholder="...press enter to remove"
-                    size="large"
-                    :value="account.text"
-                    :disabled="account.done ? 'disabled': null"
-                    @keyup.enter.native="editAccount(account, $event)"
-                /> -->
-                <!-- @blur="editAccount(account, $event)" -->
-                <!-- <at-button
-                    class="action-button"
-                    type="primary"
-                    icon="icon-check"
-                    size="large"
-                    circle
-                    :hollow="!account.done ? 'hollow': null"
-                    @click="toggleDone(account)"
-                />
-                <at-button
-                    class="action-button"
-                    type="error"
-                    icon="icon-x"
-                    size="large"
-                    circle
-                    hollow
-                    @click="removeAccount(account)"
-                /> -->
-                <router-link :to="{ name: 'account', params: { id: account.sfid }}">{{account.name}}</router-link>
+        <div class="row at-row top-row">
+            <div class="col-sm-24">
+                <div class="banner">
+                    <img class="hierarchy-image" src="../assets/hierarchy.png">
+                    <span class="treeforce-title">treeforce</span>
+                </div>
+            </div>
+        </div>
+        <div class="row at-row">
+            <AccountFilters></AccountFilters>
+        </div>
+        <div class="row at-row">
+            <div class="accounts">
+                <div
+                    v-for="account in filteredAccounts"
+                    class="account row at-row"
+                    :key="account.id"
+                >
+                    <!-- <at-input
+                        class="edit-account account-input"
+                        placeholder="...press enter to remove"
+                        size="large"
+                        :value="account.text"
+                        :disabled="account.done ? 'disabled': null"
+                        @keyup.enter.native="editAccount(account, $event)"
+                    /> -->
+                    <!-- @blur="editAccount(account, $event)" -->
+                    <!-- <at-button
+                        class="action-button"
+                        type="primary"
+                        icon="icon-check"
+                        size="large"
+                        circle
+                        :hollow="!account.done ? 'hollow': null"
+                        @click="toggleDone(account)"
+                    />
+                    /> -->
+                    <router-link :to="{ name: 'account', params: { id: account.sfid }}">
+                        <at-button type="primary" size="large" hollow>{{account.name}}</at-button>
+                    </router-link>
+                </div>
             </div>
         </div>
     </div>
@@ -41,15 +48,25 @@
 
 <script>
 import { mapState } from 'vuex'
+import _ from 'underscore'
+import AccountFilters from './AccountFilters'
 
 export default {
     name: 'accounts',
+    components: {
+        AccountFilters
+    },
     created () {
         this.$store.dispatch('fetchAccounts')
     },
-    computed: mapState([
-        'accounts'
-    ]),
+    computed: mapState({
+        filteredAccounts (state) {
+            if (state.searchText) {
+                return _.filter(state.accounts, a => a.name.toLowerCase().indexOf(state.searchText.toLowerCase()) > -1)
+            }
+            return state.accounts
+        }
+    }),
     methods: {
         // addaccount (e) {
         //     var text = e.target.value
@@ -97,12 +114,32 @@ export default {
 <style lang="less" scoped>
 
 .accounts-wrapper {
-    padding: 10vh 10vw;
-    .accounts {
-        .account {
+    .top-row {
+        padding-bottom: 20px;
+
+        .banner {
             display: flex;
             flex-direction: row;
-            justify-content: space-between;
+            justify-content: flex-start;
+            align-items: center;
+
+            .hierarchy-image {
+                width: 60px;
+                height: 60px;
+                margin-right: 10px;
+            }
+
+            .treeforce-title {
+                font-size: 1.5rem;
+                font-style: italic;
+                font-weight: 300;
+            }
+        }
+    }
+
+    .accounts {
+        margin-bottom: 30px;
+        .account {
             margin-bottom: 10px;
 
             .action-button {

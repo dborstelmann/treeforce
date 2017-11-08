@@ -1,6 +1,8 @@
 import Vue from 'vue'
 const graphURL = 'https://trees-graph.herokuapp.com/graphql'
 
+const toQueryString = input => JSON.stringify(input).replace(/"([^(")"]+)":/g, '$1:')
+
 export default {
     async fetchAccounts ({ commit }) {
         try {
@@ -38,6 +40,10 @@ export default {
                         query {
                             allContacts (condition: {accountid: "${sfid}"}) {
                                 nodes {
+                                    createdLocally
+                                    parentId
+                                    titleOverride
+                                    uploadedImageUrl
                                     lastname
                                     accountid
                                     name
@@ -72,28 +78,105 @@ export default {
         } catch (e) {
             throw e
         }
+    },
+    searchAccounts ({ commit }, searchText) {
+        commit('searchAccounts', searchText)
+    },
+    async createContact ({ commit }, contact) {
+        try {
+            const response = await Vue.http.post(
+                graphURL,
+                {
+                    query: `
+                        mutation {
+                            createContact(input: {
+                                contact: ${toQueryString(contact)}
+                            }) {
+                                contact {
+                                    createdLocally
+                                    parentId
+                                    titleOverride
+                                    uploadedImageUrl
+                                    lastname
+                                    accountid
+                                    name
+                                    mobilephone
+                                    phone
+                                    isdeleted
+                                    homephone
+                                    systemmodstamp
+                                    reportstoid
+                                    createddate
+                                    salutation
+                                    title
+                                    firstname
+                                    email
+                                    description
+                                    photourl
+                                    sfid
+                                    id
+                                    _hcLastop
+                                    _hcErr
+                                }
+                            }
+                        }
+
+                    `
+                }
+            )
+            return response.body.data.createContact.contact
+        } catch (e) {
+            throw e
+        }
+    },
+    async editContact ({ commit }, updatedContact) {
+        try {
+            const response = await Vue.http.post(
+                graphURL,
+                {
+                    query: `
+                        mutation {
+                            updateContactById(input: {
+                                id: ${updatedContact.id},
+                                contactPatch: ${toQueryString(updatedContact)}
+                            }) {
+                                contact {
+                                    createdLocally
+                                    parentId
+                                    titleOverride
+                                    uploadedImageUrl
+                                    lastname
+                                    accountid
+                                    name
+                                    mobilephone
+                                    phone
+                                    isdeleted
+                                    homephone
+                                    systemmodstamp
+                                    reportstoid
+                                    createddate
+                                    salutation
+                                    title
+                                    firstname
+                                    email
+                                    description
+                                    photourl
+                                    sfid
+                                    id
+                                    _hcLastop
+                                    _hcErr
+                                }
+                            }
+                        }
+
+                    `
+                }
+            )
+            return response.body.data.updateContactById.contact
+        } catch (e) {
+            throw e
+        }
     }
-    // async addTodo ({ commit }, todo) {
-    //     try {
-    //         const response = await Vue.http.post(
-    //             graphURL,
-    //             {
-    //                 query: `
-    //                     mutation {
-    //                         add (text: "${todo.text}") {
-    //                             id
-    //                             text
-    //                             done
-    //                         }
-    //                     }
-    //                 `
-    //             }
-    //         )
-    //         commit('addTodo', response.body.data.add)
-    //     } catch (e) {
-    //         throw e
-    //     }
-    // },
     // async editTodo ({ commit }, { todo, updatedText }) {
     //     try {
     //         const response = await Vue.http.post(

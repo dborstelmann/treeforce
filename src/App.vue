@@ -9,3 +9,11 @@ export default {
     name: 'app'
 }
 </script>
+
+<style lang="less" scoped>
+
+#app {
+    padding: 2vh 2vw;
+}
+
+</style>

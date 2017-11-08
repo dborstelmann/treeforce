@@ -1,6 +1,9 @@
 export default {
     fetchAccounts (state, accounts) {
         state.accounts = accounts
+    },
+    searchAccounts (state, searchText) {
+        state.searchText = searchText
     }
     // fetchAccount (state, { sfid, contacts }) {
     //     const account = _.findWhere(state.accounts, { sfid })

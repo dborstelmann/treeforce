@@ -3,7 +3,8 @@ import mutations from './mutations'
 
 export default {
     state: {
-        accounts: []
+        accounts: [],
+        searchText: ''
     },
     actions: actions,
     mutations: mutations
