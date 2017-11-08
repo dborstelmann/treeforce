@@ -79,8 +79,8 @@ export default {
             throw e
         }
     },
-    searchAccounts ({ commit }, searchText) {
-        commit('searchAccounts', searchText)
+    search ({ commit }, { searchKey, searchString }) {
+        commit('search', { searchKey, searchString })
     },
     async createContact ({ commit }, contact) {
         try {

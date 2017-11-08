@@ -4,7 +4,7 @@
             <div class="col-sm-24">
                 <div class="banner">
                     <img class="hierarchy-image" src="../assets/hierarchy.png">
-                    <span class="treeforce-title">treeforce</span>
+                    <span class="treeforce-title">TreeForce</span>
                 </div>
             </div>
         </div>
@@ -61,8 +61,8 @@ export default {
     },
     computed: mapState({
         filteredAccounts (state) {
-            if (state.searchText) {
-                return _.filter(state.accounts, a => a.name.toLowerCase().indexOf(state.searchText.toLowerCase()) > -1)
+            if (state.accountSearch) {
+                return _.filter(state.accounts, a => a.name.toLowerCase().indexOf(state.accountSearch.toLowerCase()) > -1)
             }
             return state.accounts
         }
@@ -131,7 +131,7 @@ export default {
 
             .treeforce-title {
                 font-size: 1.5rem;
-                font-style: italic;
+                // font-style: italic;
                 font-weight: 300;
             }
         }

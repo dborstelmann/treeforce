@@ -1,6 +1,6 @@
 <template>
     <div class="account-filters">
-        <at-input :value="searchText" @keyup.native="searchAccounts" placeholder="Search accounts..." size="large"></at-input>
+        <at-input :value="accountSearch" @keyup.native="searchAccounts" placeholder="Search accounts..." size="large"></at-input>
     </div>
 </template>
 
@@ -10,11 +10,11 @@ import { mapState } from 'vuex'
 export default {
     name: 'account-filters',
     computed: mapState([
-        'searchText'
+        'accountSearch'
     ]),
     methods: {
         searchAccounts (e) {
-            this.$store.dispatch('searchAccounts', e.target.value)
+            this.$store.dispatch('search', { searchKey: 'accountSearch', searchString: e.target.value })
         }
     }
 }

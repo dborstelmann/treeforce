@@ -4,7 +4,7 @@
             <div class="banner">
                 <div class="header">
                     <router-link to="/">
-                        <at-button type="primary" icon="icon-arrow-left" size="large" hollow>Back</at-button>
+                        <at-button type="primary" icon="icon-arrow-left" hollow>Back</at-button>
                     </router-link>
                     <span class="account-name" v-if="account">{{account.name}}</span>
                 </div>
@@ -22,28 +22,31 @@
             </div>
         </div>
         <div class="row at-row account">
-            <div class="col-sm-24 col-md-6 col-lg-4">
-                <div v-for="contact in contacts" :key="contact.id" class="contact">
-                    <div class="name">
-                        {{contact.firstname}} {{contact.lastname}}
-                        <i v-if="contact.sfid" class="icon icon-download"></i>
-                        <i v-if="!contact.sfid" class="icon icon-cloud-off no-cloud"></i>
-                        <at-button
-                            class="edit-button"
-                            icon="icon-edit"
-                            circle
-                            size="small"
-                            @click="editModals[contact.id]=true"
-                        ></at-button>
-                        <at-modal v-model="editModals[contact.id]" :title="contact.name" @on-confirm="editContact(contact)">
-                            <ContactModal :contact="contact"></ContactModal>
-                        </at-modal>
-                    </div>
-                    <div class="title">
-                        {{contact.titleOverride || contact.title}}
-                    </div>
-                    <div class="tags">
-                        <at-tag class="tag" v-if="contact.parentId || contact.reportstoid" color="primary">Reports to: {{findParent(contact)}}</at-tag>
+            <div class="col-xs-24 col-md-6 col-lg-4">
+                <ContactFilters></ContactFilters>
+                <div class="contact-list">
+                    <div v-for="contact in filteredContacts" :key="contact.id" class="contact">
+                        <div class="name">
+                            {{contact.firstname}} {{contact.lastname}}
+                            <i v-if="contact.sfid" class="icon icon-download"></i>
+                            <i v-if="!contact.sfid" class="icon icon-cloud-off no-cloud"></i>
+                            <at-button
+                                class="edit-button"
+                                icon="icon-edit"
+                                circle
+                                size="small"
+                                @click="editModals[contact.id]=true"
+                            ></at-button>
+                            <at-modal v-model="editModals[contact.id]" :title="contact.name" @on-confirm="editContact(contact)">
+                                <ContactModal :contact="contact"></ContactModal>
+                            </at-modal>
+                        </div>
+                        <div class="title">
+                            {{contact.titleOverride || contact.title}}
+                        </div>
+                        <div class="tags">
+                            <at-tag class="tag" v-if="contact.parentId || contact.reportstoid" color="primary">Reports to: {{findParent(contact)}}</at-tag>
+                        </div>
                     </div>
                 </div>
                 <div class="new-contact">
@@ -62,6 +65,22 @@
                     </at-modal>
                 </div>
             </div>
+            <div class="col-xs-24 col-md-18 col-lg-20">
+                <at-button-group size="large" class="button-group">
+                    <at-button
+                        class="button"
+                        v-bind:class="[!treeView ? 'active' : '']"
+                        @click="treeView=false"
+                    ><i class="icon icon-move"></i></at-button>
+                    <at-button
+                        class="button"
+                        v-bind:class="[treeView ? 'active' : '']"
+                        @click="treeView=true"
+                    ><i class="icon icon-share-2 rotate-90"></i></at-button>
+                </at-button-group>
+                <DragonDrop v-if="!treeView"></DragonDrop>
+                <TreeView v-if="treeView" :contacts="contacts"></TreeView>
+            </div>
         </div>
         </div>
             <!-- <draggable v-model="contacts" @start="drag=true" @end="drag=false"> -->
@@ -74,6 +93,9 @@
 import { mapState } from 'vuex'
 import _ from 'underscore'
 import ContactModal from './ContactModal'
+import ContactFilters from './ContactFilters'
+import DragonDrop from './DragonDrop'
+import TreeView from './TreeView'
 
 const contactSchema = {
     firstname: '',
@@ -90,10 +112,14 @@ const contactSchema = {
 export default {
     name: 'accounts',
     components: {
-        ContactModal
+        ContactModal,
+        ContactFilters,
+        DragonDrop,
+        TreeView
     },
     data () {
         return {
+            treeView: false,
             contacts: [],
             contactMap: {},
             salesforceContactMap: {},
@@ -104,6 +130,7 @@ export default {
         }
     },
     created () {
+        this.$store.dispatch('search', { searchKey: 'contactSearch', searchText: '' })
         if (!this.$store.state.accounts.length) {
             this.$store.dispatch('fetchAccounts').then(this.mapAccount)
         } else {
@@ -111,9 +138,15 @@ export default {
         }
         this.$store.dispatch('fetchContacts', this.$route.params.id).then(this.updateContacts)
     },
-    computed: mapState([
-        'accounts'
-    ]),
+    computed: mapState({
+        accounts: 'accounts',
+        filteredContacts (state) {
+            if (state.contactSearch) {
+                return _.filter(this.contacts, c => c.name.toLowerCase().indexOf(state.contactSearch.toLowerCase()) > -1)
+            }
+            return this.contacts
+        }
+    }),
     methods: {
         updateContacts (contacts) {
             this.contacts = contacts
@@ -172,6 +205,9 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 
+// body {
+//     overflow: hidden;
+// }
 .account-wrapper {
     .no-cloud {
         color: #FF4949;
@@ -180,64 +216,89 @@ export default {
     .banner {
         width: 100%;
         display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
+        flex-direction: column;
+
+        @media screen and (min-width: 768px) {
+            flex-direction: row;
+            justify-content: space-between;
+
+            .legend {
+                align-items: flex-end;
+                text-align: right;
+            }
+        }
 
         .legend {
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
 
             .legend-item {
-                text-align: right;
             }
         }
 
         .account-name {
             margin-left: 10px;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
+            margin-top: 10px;
+
+            @media screen and (max-width: 480px) {
+                display: block;
+                margin-left: 0;
+            }
         }
     }
 
     .account {
         margin-top: 20px;
 
-        .contact {
-            margin-top: 10px;
-            border: 1px solid #c5d9e8;
-            border-radius: 4px;
-            color: #6190e8;
-            cursor: pointer;
-            transition: background .2s;
-            padding: 6px 10px;
-
-            .title {
-                color: #3f536e;
-                font-size: 0.8rem;
+        .contact-list {
+            @media screen and (min-width: 480px) {
+                overflow: scroll;
+                height: calc(~'100vh - 84px - 85px - 52px');
             }
 
-            .edit-button {
-                float: right;
+            @media screen and (min-width: 835px) {
+                height: calc(~'100vh - 63px - 85px - 52px');
             }
 
-            // &:hover {
-            //     color: #fff;
-            //     background-color: #6190e8;
-            //
-            //     .title {
-            //         color: #fff;
-            //     }
-            //
-            //     .tag {
-            //         color: #6190e8;
-            //         background-color: #fff;
-            //     }
-            //
-            //     .edit-button {
-            //         color: #6190e8;
-            //     }
-            // }
+            .contact {
+                margin-top: 10px;
+                border: 1px solid #c5d9e8;
+                border-radius: 4px;
+                color: #6190e8;
+                cursor: pointer;
+                transition: background .2s;
+                padding: 6px 10px;
+
+                .title {
+                    color: #3f536e;
+                    font-size: 0.8rem;
+                    margin-bottom: 2px;
+                }
+
+                .edit-button {
+                    float: right;
+                }
+
+                // &:hover {
+                //     color: #fff;
+                //     background-color: #6190e8;
+                //
+                //     .title {
+                //         color: #fff;
+                //     }
+                //
+                //     .tag {
+                //         color: #6190e8;
+                //         background-color: #fff;
+                //     }
+                //
+                //     .edit-button {
+                //         color: #                        v-bind:class="[!treeView ? activeClass : '']">
+;
+                //     }
+                // }
+            }
         }
 
         .new-contact-button {
@@ -247,6 +308,25 @@ export default {
             //     color: #fff;
             //     background-color: #6190e8;
             // }
+        }
+
+        .button-group {
+            float: right;
+
+            .button {
+                border-color: #6190e8;
+                color: #6190e8;
+            }
+
+            .rotate-90 {
+                transform: rotate(90deg);
+                display: inline-block;
+            }
+
+            .active {
+                background-color: #6190e8;
+                color: #fff;
+            }
         }
     }
 }

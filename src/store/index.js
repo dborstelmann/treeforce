@@ -4,7 +4,8 @@ import mutations from './mutations'
 export default {
     state: {
         accounts: [],
-        searchText: ''
+        accountSearch: '',
+        contactSearch: ''
     },
     actions: actions,
     mutations: mutations
