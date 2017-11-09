@@ -1,6 +1,6 @@
 <template>
   <div>
-      <tree style="transform: rotate(90deg); height: 60vw; width: 70vh;" layoutType="euclidean" :zoomable="true" v-for="contact in rootList" :key="contact.id" :data="hierarchyContacts(contact)" node-text="name"></tree>
+      <tree class="tree" layoutType="euclidean" :zoomable="true" v-for="contact in rootList" :key="contact.id" :data="hierarchyContacts(contact)" node-text="name"></tree>
   </div>
 </template>
 
@@ -42,7 +42,7 @@ export default {
     methods: {
         hierarchyContacts (node) {
             return {
-                name: node.name,
+                name: node.name + ' - ' + (node.titleOverride || node.title),
                 children: this.findChildren(node)
             }
         },
@@ -56,7 +56,7 @@ export default {
             const childNodes = []
             _.each(children, (c) => {
                 childNodes.push({
-                    name: c.name,
+                    name: c.name + ' - ' + (c.titleOverride || c.title),
                     children: this.findChildren(c)
                 })
             })
@@ -68,4 +68,16 @@ export default {
 
 <style lang="less" scoped>
 
+.tree {
+    width: 100%;
+    height: 100vh;
+
+    @media screen and (min-width: 480px) {
+        height: calc(~'100vh - 84px - 36px - 52px');
+    }
+
+    @media screen and (min-width: 835px) {
+        height: calc(~'100vh - 63px - 36px - 52px');
+    }
+}
 </style>
