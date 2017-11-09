@@ -79,7 +79,8 @@
                     ><i class="icon icon-share-2 rotate-90"></i></at-button>
                 </at-button-group>
                 <DragonDrop v-if="!treeView"></DragonDrop>
-                <TreeView v-if="treeView" :contacts="contacts"></TreeView>
+                <!-- <TreeView v-if="treeView" :contacts="contacts"></TreeView> -->
+                <TreeThree v-if="treeView" :contacts="contacts"></TreeThree>
             </div>
         </div>
         </div>
@@ -96,6 +97,7 @@ import ContactModal from './ContactModal'
 import ContactFilters from './ContactFilters'
 import DragonDrop from './DragonDrop'
 import TreeView from './TreeView'
+import TreeThree from './TreeThree'
 
 const contactSchema = {
     firstname: '',
@@ -115,7 +117,8 @@ export default {
         ContactModal,
         ContactFilters,
         DragonDrop,
-        TreeView
+        TreeView,
+        TreeThree
     },
     data () {
         return {

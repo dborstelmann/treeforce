@@ -1,19 +1,40 @@
 <template>
-  <div>
-      <!-- <tree class="tree" layoutType="euclidean" :zoomable="true" v-for="contact in rootList" :key="contact.id" :data="hierarchyContacts(contact)" node-text="name"></tree> -->
+  <div class="tree">
   </div>
 </template>
 
 <script>
 import _ from 'underscore'
-// import { tree } from 'vued3tree'
-
+import Tree from './tree'
+// var treeData =
+//     {
+//         'name': 'BU Head',
+//         'children': [
+//             {
+//                 'name': 'Manager',
+//                 'children': [
+//                     {
+//                         'name': 'Team Lead',
+//                         'children': []
+//                     },
+//                     {
+//                         'name': 'Team Lead',
+//                         'children': []
+//                     }
+//                 ]
+//             },
+//             {
+//                 'name': 'Manager',
+//                 'children': []
+//             }
+//         ]
+//     }
 export default {
-    name: 'tree-view',
-    components: {
-        // tree
-    },
+    name: 'tree-three',
     props: ['contacts'],
+    mounted () {
+        Tree(this.hierarchyContacts(this.rootList[0]), this.$el)
+    },
     computed: {
         parentMap () {
             const map = {}
@@ -67,17 +88,34 @@ export default {
 </script>
 
 <style lang="less" scoped>
-
 .tree {
-    width: 100%;
-    height: 100vh;
+    height: 400px;
+    width: 400px;
 
-    @media screen and (min-width: 480px) {
-        height: calc(~'100vh - 84px - 36px - 52px');
-    }
+    .node {
+            cursor: pointer;
+        }
 
-    @media screen and (min-width: 835px) {
-        height: calc(~'100vh - 63px - 36px - 52px');
-    }
+            .node circle {
+                /*fill: #fff;
+                stroke: steelblue;*/
+                stroke-width: 3px;
+            }
+
+            .node text {
+                font: 12px sans-serif;
+                fill: #fff;
+            }
+
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 2px;
+        }
+
+        .tree {
+            margin-bottom: 10px;
+            overflow: auto;
+        }
 }
 </style>
