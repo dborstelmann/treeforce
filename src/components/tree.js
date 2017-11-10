@@ -3,8 +3,9 @@
  // build tree
  function BuildVerticaLTree (treeData, $el) {
      var margin = { top: 40, right: 120, bottom: 20, left: 120 }
-     var width = 960 - margin.right - margin.left
-     var height = 500 - margin.top - margin.bottom
+     var clientRect = $el.getBoundingClientRect()
+     var width = clientRect.width - margin.right - margin.left
+     var height = clientRect.height - margin.top - margin.bottom
 
      var i = 0
      var duration = 750
@@ -12,13 +13,30 @@
           .size([height, width])
      var diagonal = d3.svg.diagonal()
           .projection(function (d) { return [d.x, d.y] })
+
+     // var drag = d3.behavior.drag()
+     //     .origin(function (d) { return d })
+     //     .on('dragstart', dragstarted)
+     //     .on('drag', dragged)
+     //     .on('dragend', dragended)
+
      var svg = d3.select($el).append('svg')
           .attr('width', width + margin.right + margin.left)
           .attr('height', height + margin.top + margin.bottom)
         .append('g')
           .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+          .call(d3.behavior.zoom().on('zoom', function () {
+              svg.attr('transform', 'translate(' + d3.event.translate + ')' + ' scale(' + d3.event.scale + ')')
+          }))
+
+     svg.append('rect')
+        .attr('width', width)
+        .attr('height', height)
+        .style('fill', 'none')
+        .style('pointer-events', 'all')
+
      var root = treeData
-     console.log(root)
+
      update(root)
      function update (source) {
           // Compute the new tree layout.
@@ -30,15 +48,19 @@
          var node = svg.selectAll('g.node')
               .data(nodes, function (d) { return d.id || (d.id = ++i) })
           // Enter the nodes.
+
          var nodeEnter = node.enter().append('g')
               .attr('class', 'node')
               .attr('transform', function (d) {
+                  console.log(source)
+                  console.log(source.x0)
+                  console.log(source.y0)
                   return 'translate(' + source.x0 + ',' + source.y0 + ')'
               }).on('click', nodeclick)
          nodeEnter.append('circle')
            .attr('r', 10)
-              .attr('stroke', function (d) { return d.children || d._children ? 'steelblue' : '#00c13f' })
-              .style('fill', function (d) { return d.children || d._children ? 'lightsteelblue' : '#fff' })
+              .attr('stroke', function (d) { return d.children || d._children ? '#6190e8' : '#ccc' })
+              .style('fill', function (d) { return d.children || d._children ? '#6190e8' : '#fff' })
           // .attr("r", 10)
           // .style("fill", "#fff");
          nodeEnter.append('text')
@@ -48,7 +70,7 @@
               .attr('dy', '.35em')
               .attr('text-anchor', 'middle')
               .text(function (d) { return d.name })
-              .style('fill-opacity', 1e-6)
+              .style({ 'fill-opacity': 1e-6, 'fill': '#3F536E' })
           // Transition nodes to their new position.
           // horizontal tree
          var nodeUpdate = node.transition()
@@ -56,7 +78,7 @@
               .attr('transform', function (d) { return 'translate(' + d.x + ',' + d.y + ')' })
          nodeUpdate.select('circle')
               .attr('r', 10)
-              .style('fill', function (d) { return d._children ? 'lightsteelblue' : '#fff' })
+              .style('fill', function (d) { return d._children ? '#6190e8' : '#fff' })
          nodeUpdate.select('text')
               .style('fill-opacity', 1)
 
@@ -81,6 +103,7 @@
                   var o = { x: source.x0, y: source.y0 }
                   return diagonal({ source: o, target: o })
               })
+              // .call(drag)
           // Transition links to their new position.
          link.transition()
               .duration(duration)
@@ -101,6 +124,19 @@
              d.y0 = d.y
          })
      }
+
+     // function dragstarted (d) {
+     //     d3.event.sourceEvent.stopPropagation()
+     //     d3.select(this).classed('dragging', true)
+     // }
+     //
+     // function dragged (d) {
+     //     d3.select(this).attr('cx', d.x = d3.event.x).attr('cy', d.y = d3.event.y)
+     // }
+     //
+     // function dragended (d) {
+     //     d3.select(this).classed('dragging', false)
+     // }
 
       // Toggle children on click.
      function nodeclick (d) {

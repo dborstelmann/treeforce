@@ -5,35 +5,18 @@
 
 <script>
 import _ from 'underscore'
-import Tree from './tree'
-// var treeData =
-//     {
-//         'name': 'BU Head',
-//         'children': [
-//             {
-//                 'name': 'Manager',
-//                 'children': [
-//                     {
-//                         'name': 'Team Lead',
-//                         'children': []
-//                     },
-//                     {
-//                         'name': 'Team Lead',
-//                         'children': []
-//                     }
-//                 ]
-//             },
-//             {
-//                 'name': 'Manager',
-//                 'children': []
-//             }
-//         ]
-//     }
+import Tree from './dndTree'
+
 export default {
     name: 'tree-three',
     props: ['contacts'],
     mounted () {
-        Tree(this.hierarchyContacts(this.rootList[0]), this.$el)
+        this.buildTree()
+    },
+    watch: {
+        contacts: function () {
+            this.buildTree()
+        }
     },
     computed: {
         parentMap () {
@@ -47,14 +30,14 @@ export default {
             })
             return map
         },
-        rootList () {
-            const roots = []
+        root () {
+            let root = {}
             _.each(_.keys(this.parentMap), (p) => {
                 if (!this.parentMap[parseInt(p)].parentId && !this.parentMap[p].reportstoid) {
-                    roots.push(this.parentMap[parseInt(p)])
+                    root = this.parentMap[parseInt(p)]
                 }
             })
-            return roots
+            return root
         },
         contactsInTree () {
             return _.filter(this.contacts, c => this.parentMap[c.id || c.sfid] || c.parentId || c.reportstoid)
@@ -63,7 +46,8 @@ export default {
     methods: {
         hierarchyContacts (node) {
             return {
-                name: node.name + ' - ' + (node.titleOverride || node.title),
+                // name: node.name + ' - ' + (node.titleOverride || node.title),
+                name: node.name,
                 children: this.findChildren(node)
             }
         },
@@ -77,45 +61,51 @@ export default {
             const childNodes = []
             _.each(children, (c) => {
                 childNodes.push({
-                    name: c.name + ' - ' + (c.titleOverride || c.title),
+                    // name: c.name + ' - ' + (c.titleOverride || c.title),
+                    name: c.name,
                     children: this.findChildren(c)
                 })
             })
             return childNodes
+        },
+        buildTree () {
+            if (this.contacts.length) {
+                Tree(this.hierarchyContacts(this.root), this.$el)
+            }
         }
     }
 }
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .tree {
-    height: 400px;
-    width: 400px;
+    width: 100%;
+    height: 100vh;
+
+    @media screen and (min-width: 480px) {
+        height: calc(~'100vh - 150px');
+    }
 
     .node {
-            cursor: pointer;
-        }
+        cursor: pointer;
+    }
 
-            .node circle {
-                /*fill: #fff;
-                stroke: steelblue;*/
-                stroke-width: 3px;
-            }
+    .node circle {
+        /*fill: #fff;
+        stroke: steelblue;*/
+        stroke-width: 3px;
+    }
 
-            .node text {
-                font: 12px sans-serif;
-                fill: #fff;
-            }
+    .node text {
+        font: 12px sans-serif;
+        // fill: #fff;
+    }
 
-        .link {
-            fill: none;
-            stroke: #ccc;
-            stroke-width: 2px;
-        }
+    .link {
+        fill: none;
+        stroke: #ccc;
+        stroke-width: 2px;
+    }
 
-        .tree {
-            margin-bottom: 10px;
-            overflow: auto;
-        }
 }
 </style>
