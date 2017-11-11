@@ -23,7 +23,7 @@ export default {
             const map = {}
             _.each(this.contacts, (c) => {
                 if (c.parentId) {
-                    map[parseInt(c.parentId)] = _.findWhere(this.contacts, { id: parseInt(c.parentId) })
+                    map[c.parentId] = _.findWhere(this.contacts, { id: c.parentId })
                 } else if (c.reportstoid) {
                     map[c.reportstoid] = _.findWhere(this.contacts, { sfid: c.reportstoid })
                 }
@@ -33,8 +33,8 @@ export default {
         root () {
             let root = {}
             _.each(_.keys(this.parentMap), (p) => {
-                if (!this.parentMap[parseInt(p)].parentId && !this.parentMap[p].reportstoid) {
-                    root = this.parentMap[parseInt(p)]
+                if (!this.parentMap[p].parentId && !this.parentMap[p].reportstoid) {
+                    root = this.parentMap[p]
                 }
             })
             return root
@@ -46,13 +46,13 @@ export default {
     methods: {
         hierarchyContacts (node) {
             return {
-                // name: node.name + ' - ' + (node.titleOverride || node.title),
                 name: node.name,
+                contact: node,
                 children: this.findChildren(node)
             }
         },
         findChildren (node) {
-            const children = _.where(this.contactsInTree, { parentId: node.id.toString() })
+            const children = _.where(this.contactsInTree, { parentId: node.id })
             _.each(this.contactsInTree, (c) => {
                 if (node.sfid && c.reportstoid === node.sfid && c.parentId === null) {
                     children.push(c)
@@ -61,8 +61,8 @@ export default {
             const childNodes = []
             _.each(children, (c) => {
                 childNodes.push({
-                    // name: c.name + ' - ' + (c.titleOverride || c.title),
                     name: c.name,
+                    contact: c,
                     children: this.findChildren(c)
                 })
             })
@@ -70,8 +70,11 @@ export default {
         },
         buildTree () {
             if (this.contacts.length) {
-                Tree(this.hierarchyContacts(this.root), this.$el)
+                Tree(this.hierarchyContacts(this.root), this.$el, this.updateParent)
             }
+        },
+        updateParent (updatedContact) {
+            this.$store.dispatch('editContact', updatedContact)
         }
     }
 }
@@ -86,26 +89,66 @@ export default {
         height: calc(~'100vh - 150px');
     }
 
+    // .node {
+    //     cursor: pointer;
+    // }
+    //
+    // .node circle {
+    //     /*fill: #fff;
+    //     stroke: steelblue;*/
+    //     stroke-width: 3px;
+    // }
+    //
+    // .node text {
+    //     font: 12px sans-serif;
+    //     // fill: #fff;
+    // }
+    //
+    // .link {
+    //     fill: none;
+    //     stroke: #ccc;
+    //     stroke-width: 2px;
+    // }
+
     .node {
         cursor: pointer;
     }
 
+    .overlay{
+        background-color:#EEE;
+    }
+
     .node circle {
-        /*fill: #fff;
-        stroke: steelblue;*/
-        stroke-width: 3px;
+        fill: #fff;
+        stroke: steelblue;
+        stroke-width: 1.5px;
     }
 
     .node text {
-        font: 12px sans-serif;
-        // fill: #fff;
+        font-size:10px;
+        font-family:sans-serif;
     }
 
     .link {
         fill: none;
         stroke: #ccc;
-        stroke-width: 2px;
+        stroke-width: 1.5px;
     }
+
+    .templink {
+        fill: none;
+        stroke: red;
+        stroke-width: 3px;
+    }
+
+    .ghostCircle.show{
+        display:block;
+    }
+
+    .ghostCircle, .activeDrag .ghostCircle{
+        display: none;
+    }
+
 
 }
 </style>

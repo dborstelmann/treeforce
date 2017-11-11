@@ -29,7 +29,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 import * as d3 from 'd3'
 
 // Get JSON data
-export default function (treeData, $el) {
+export default function (treeData, $el, updateContact) {
     var nodes = null;
     var domNode = null;
     var x = null;
@@ -68,7 +68,7 @@ export default function (treeData, $el) {
     // define a d3 diagonal projection for use by the node paths later on.
     var diagonal = d3.svg.diagonal()
         .projection(function (d) {
-            return [d.y, d.x]
+            return [d.x, d.y]
         })
 
     // A recursive helper function for performing some setup by walking through all nodes
@@ -111,7 +111,9 @@ export default function (treeData, $el) {
         var speed = panSpeed
         if (panTimer) {
             clearTimeout(panTimer)
-            translateCoords = d3.transform(svgGroup.attr('transform'))
+            var translateCoords = d3.transform(svgGroup.attr('transform'))
+            var translateX = null
+            var translateY = null
             if (direction == 'left' || direction == 'right') {
                 translateX = direction == 'left' ? translateCoords.translate[0] + speed : translateCoords.translate[0] - speed
                 translateY = translateCoords.translate[1]
@@ -119,9 +121,9 @@ export default function (treeData, $el) {
                 translateX = translateCoords.translate[0]
                 translateY = direction == 'up' ? translateCoords.translate[1] + speed : translateCoords.translate[1] - speed
             }
-            scaleX = translateCoords.scale[0]
-            scaleY = translateCoords.scale[1]
-            scale = zoomListener.scale()
+            var scaleX = translateCoords.scale[0]
+            var scaleY = translateCoords.scale[1]
+            var scale = zoomListener.scale()
             svgGroup.transition().attr('transform', 'translate(' + translateX + ',' + translateY + ')scale(' + scale + ')')
             d3.select(domNode).select('g.node').attr('transform', 'translate(' + translateX + ',' + translateY + ')')
             zoomListener.scale(zoomListener.scale())
@@ -209,19 +211,18 @@ export default function (treeData, $el) {
                 domNode = this
                 initiateDrag(d, domNode)
             }
-
             // get coords of mouseEvent relative to svg container to allow for panning
-            relCoords = d3.mouse(d3.select('svg'))
+            relCoords = d3.mouse(document.getElementsByTagName('svg')[0])
             if (relCoords[0] < panBoundary) {
                 panTimer = true
                 pan(this, 'left')
-            } else if (relCoords[0] > (d3.select('svg').width() - panBoundary)) {
+            } else if (relCoords[0] > (clientRect.width - panBoundary)) {
                 panTimer = true
                 pan(this, 'right')
             } else if (relCoords[1] < panBoundary) {
                 panTimer = true
                 pan(this, 'up')
-            } else if (relCoords[1] > (d3.select('svg').height() - panBoundary)) {
+            } else if (relCoords[1] > (clientRect.height - panBoundary)) {
                 panTimer = true
                 pan(this, 'down')
             } else {
@@ -232,10 +233,10 @@ export default function (treeData, $el) {
                 }
             }
 
-            d.x0 += d3.event.dy
-            d.y0 += d3.event.dx
+            d.x0 += d3.event.dx
+            d.y0 += d3.event.dy
             var node = d3.select(this)
-            node.attr('transform', 'translate(' + d.y0 + ',' + d.x0 + ')')
+            node.attr('transform', 'translate(' + d.x0 + ',' + d.y0 + ')')
             updateTempConnector()
         }).on('dragend', function (d) {
             if (d == root) {
@@ -258,6 +259,8 @@ export default function (treeData, $el) {
                     selectedNode.children = []
                     selectedNode.children.push(draggingNode)
                 }
+                draggingNode.contact.parentId = selectedNode.contact.id
+                updateContact(draggingNode.contact)
                 // Make sure that the node being added to is expanded so user can see added node is correctly moved
                 expand(selectedNode)
                 sortTree()
@@ -276,7 +279,7 @@ export default function (treeData, $el) {
         updateTempConnector()
         if (draggingNode !== null) {
             update(root)
-            centerNode(draggingNode)
+            // centerNode(draggingNode)
             draggingNode = null
         }
     }
@@ -315,12 +318,12 @@ export default function (treeData, $el) {
             // have to flip the source coordinates since we did this for the existing connectors on the original tree
             data = [{
                 source: {
-                    x: selectedNode.y0,
-                    y: selectedNode.x0
+                    x: selectedNode.x0,
+                    y: selectedNode.y0
                 },
                 target: {
-                    x: draggingNode.y0,
-                    y: draggingNode.x0
+                    x: draggingNode.x0,
+                    y: draggingNode.y0
                 }
             }]
         }
@@ -340,10 +343,10 @@ export default function (treeData, $el) {
 
     function centerNode (source) {
         scale = zoomListener.scale()
-        x = -source.y0
-        y = -source.x0
+        x = -source.x0
+        y = -source.y0
         x = x * scale + viewerWidth / 2
-        y = y * scale + viewerHeight / 2
+        y = y * scale + 20
         d3.select('g').transition()
             .duration(duration)
             .attr('transform', 'translate(' + x + ',' + y + ')scale(' + scale + ')')
@@ -370,7 +373,7 @@ export default function (treeData, $el) {
         if (d3.event.defaultPrevented) return // click suppressed
         d = toggleChildren(d)
         update(d)
-        centerNode(d)
+        // centerNode(d)
     }
 
     function update (source) {
@@ -415,7 +418,7 @@ export default function (treeData, $el) {
             .call(dragListener)
             .attr('class', 'node')
             .attr('transform', function (d) {
-                return 'translate(' + source.y0 + ',' + source.x0 + ')'
+                return 'translate(' + source.x0 + ',' + source.y0 + ')'
             })
             .on('click', click)
 
@@ -427,14 +430,16 @@ export default function (treeData, $el) {
             })
 
         nodeEnter.append('text')
-            .attr('x', function (d) {
-                return d.children || d._children ? -10 : 10
-            })
+            // .attr('x', function (d) {
+            //     return d.children || d._children ? -10 : 10
+            // })
+            .attr('x', 10)
             .attr('dy', '.35em')
+            .attr('transform', 'rotate(90)')
             .attr('class', 'nodeText')
-            .attr('text-anchor', function (d) {
-                return d.children || d._children ? 'end' : 'start'
-            })
+            // .attr('text-anchor', function (d) {
+            //     return d.children || d._children ? 'end' : 'start'
+            // })
             .text(function (d) {
                 return d.name
             })
@@ -456,12 +461,13 @@ export default function (treeData, $el) {
 
         // Update the text to reflect whether node has children or not.
         node.select('text')
-            .attr('x', function (d) {
-                return d.children || d._children ? -10 : 10
-            })
-            .attr('text-anchor', function (d) {
-                return d.children || d._children ? 'end' : 'start'
-            })
+            .attr('x', 10)
+            // .attr('x', function (d) {
+            //     return d.children || d._children ? -10 : 10
+            // })
+            // .attr('text-anchor', function (d) {
+            //     return d.children || d._children ? 'end' : 'start'
+            // })
             .text(function (d) {
                 return d.name
             })
@@ -477,7 +483,7 @@ export default function (treeData, $el) {
         var nodeUpdate = node.transition()
             .duration(duration)
             .attr('transform', function (d) {
-                return 'translate(' + d.y + ',' + d.x + ')'
+                return 'translate(' + d.x + ',' + d.y + ')'
             })
 
         // Fade the text in
@@ -488,7 +494,7 @@ export default function (treeData, $el) {
         var nodeExit = node.exit().transition()
             .duration(duration)
             .attr('transform', function (d) {
-                return 'translate(' + source.y + ',' + source.x + ')'
+                return 'translate(' + source.x + ',' + source.y + ')'
             })
             .remove()
 
