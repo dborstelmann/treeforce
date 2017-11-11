@@ -27,7 +27,6 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 import * as d3 from 'd3'
-import $ from 'jquery'
 
 // Get JSON data
 export default function (treeData, $el) {
@@ -57,9 +56,11 @@ export default function (treeData, $el) {
     var duration = 750
     var root
 
+    var clientRect = $el.getBoundingClientRect()
+
     // size of the diagram
-    var viewerWidth = $(document).width()
-    var viewerHeight = $(document).height()
+    var viewerWidth = clientRect.width
+    var viewerHeight = clientRect.height
 
     var tree = d3.layout.tree()
         .size([viewerHeight, viewerWidth])
@@ -210,17 +211,17 @@ export default function (treeData, $el) {
             }
 
             // get coords of mouseEvent relative to svg container to allow for panning
-            relCoords = d3.mouse($('svg').get(0))
+            relCoords = d3.mouse(d3.select('svg'))
             if (relCoords[0] < panBoundary) {
                 panTimer = true
                 pan(this, 'left')
-            } else if (relCoords[0] > ($('svg').width() - panBoundary)) {
+            } else if (relCoords[0] > (d3.select('svg').width() - panBoundary)) {
                 panTimer = true
                 pan(this, 'right')
             } else if (relCoords[1] < panBoundary) {
                 panTimer = true
                 pan(this, 'up')
-            } else if (relCoords[1] > ($('svg').height() - panBoundary)) {
+            } else if (relCoords[1] > (d3.select('svg').height() - panBoundary)) {
                 panTimer = true
                 pan(this, 'down')
             } else {

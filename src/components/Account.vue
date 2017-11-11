@@ -122,7 +122,7 @@ export default {
     },
     data () {
         return {
-            treeView: false,
+            treeView: true,
             contacts: [],
             contactMap: {},
             salesforceContactMap: {},
