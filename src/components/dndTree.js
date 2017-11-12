@@ -27,21 +27,22 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 import * as d3 from 'd3'
+import _ from 'underscore'
 
 // Get JSON data
 export default function (treeData, $el, updateContact) {
-    var nodes = null;
-    var domNode = null;
-    var x = null;
-    var y = null;
-    var scale = null;
-    var links = null;
-    var parentLink = null;
-    var nodePaths = null;
-    var nodesExit = null;
-    var relCoords = null;
-    var dragStarted = null;
-    var panTimer = null;
+    var nodes = null
+    var domNode = null
+    var x = null
+    var y = null
+    var scale = null
+    var links = null
+    var parentLink = null
+    var nodePaths = null
+    var nodesExit = null
+    var relCoords = null
+    var dragStarted = null
+    var panTimer = null
     // Calculate total nodes, max label length
     var totalNodes = 0
     var maxLabelLength = 0
@@ -114,15 +115,15 @@ export default function (treeData, $el, updateContact) {
             var translateCoords = d3.transform(svgGroup.attr('transform'))
             var translateX = null
             var translateY = null
-            if (direction == 'left' || direction == 'right') {
-                translateX = direction == 'left' ? translateCoords.translate[0] + speed : translateCoords.translate[0] - speed
+            if (direction === 'left' || direction === 'right') {
+                translateX = direction === 'left' ? translateCoords.translate[0] + speed : translateCoords.translate[0] - speed
                 translateY = translateCoords.translate[1]
-            } else if (direction == 'up' || direction == 'down') {
+            } else if (direction === 'up' || direction === 'down') {
                 translateX = translateCoords.translate[0]
-                translateY = direction == 'up' ? translateCoords.translate[1] + speed : translateCoords.translate[1] - speed
+                translateY = direction === 'up' ? translateCoords.translate[1] + speed : translateCoords.translate[1] - speed
             }
-            var scaleX = translateCoords.scale[0]
-            var scaleY = translateCoords.scale[1]
+            // var scaleX = translateCoords.scale[0]
+            // var scaleY = translateCoords.scale[1]
             var scale = zoomListener.scale()
             svgGroup.transition().attr('transform', 'translate(' + translateX + ',' + translateY + ')scale(' + scale + ')')
             d3.select(domNode).select('g.node').attr('transform', 'translate(' + translateX + ',' + translateY + ')')
@@ -150,7 +151,7 @@ export default function (treeData, $el, updateContact) {
         d3.select(domNode).attr('class', 'node activeDrag')
 
         svgGroup.selectAll('g.node').sort(function (a, b) { // select the parent and sort the path's
-            if (a.id != draggingNode.id) return 1 // a is not the hovered element, send "a" to the back
+            if (a.id !== draggingNode.id) return 1 // a is not the hovered element, send "a" to the back
             else return -1 // a is the hovered element, bring "a" to the front
         })
         // if nodes has children, remove the links and nodes
@@ -166,7 +167,7 @@ export default function (treeData, $el, updateContact) {
                 .data(nodes, function (d) {
                     return d.id
                 }).filter(function (d, i) {
-                    if (d.id == draggingNode.id) {
+                    if (d.id === draggingNode.id) {
                         return false
                     }
                     return true
@@ -176,7 +177,7 @@ export default function (treeData, $el, updateContact) {
         // remove parent link
         parentLink = tree.links(tree.nodes(draggingNode.parent))
         svgGroup.selectAll('path.link').filter(function (d, i) {
-            if (d.target.id == draggingNode.id) {
+            if (d.target.id === draggingNode.id) {
                 return true
             }
             return false
@@ -195,7 +196,7 @@ export default function (treeData, $el, updateContact) {
     // Define the drag listeners for drag/drop behaviour of nodes.
     var dragListener = d3.behavior.drag()
         .on('dragstart', function (d) {
-            if (d == root) {
+            if (d === root) {
                 return
             }
             dragStarted = true
@@ -204,7 +205,7 @@ export default function (treeData, $el, updateContact) {
             // it's important that we suppress the mouseover event on the node being dragged. Otherwise it will absorb the mouseover event and the underlying node will not detect it d3.select(this).attr('pointer-events', 'none');
         })
         .on('drag', function (d) {
-            if (d == root) {
+            if (d === root) {
                 return
             }
             if (dragStarted) {
@@ -239,7 +240,7 @@ export default function (treeData, $el, updateContact) {
             node.attr('transform', 'translate(' + d.x0 + ',' + d.y0 + ')')
             updateTempConnector()
         }).on('dragend', function (d) {
-            if (d == root) {
+            if (d === root) {
                 return
             }
             domNode = this
@@ -286,13 +287,13 @@ export default function (treeData, $el, updateContact) {
 
     // Helper functions for collapsing and expanding nodes.
 
-    function collapse (d) {
-        if (d.children) {
-            d._children = d.children
-            d._children.forEach(collapse)
-            d.children = null
-        }
-    }
+    // function collapse (d) {
+    //     if (d.children) {
+    //         d._children = d.children
+    //         d._children.forEach(collapse)
+    //         d.children = null
+    //     }
+    // }
 
     function expand (d) {
         if (d._children) {
@@ -392,16 +393,52 @@ export default function (treeData, $el, updateContact) {
             }
         }
         childCount(0, root)
-        var newHeight = d3.max(levelWidth) * 25 // 25 pixels per line
+        var newHeight = d3.max(levelWidth) * 35 // 25 pixels per line
         tree = tree.size([newHeight, viewerWidth])
 
         // Compute the new tree layout.
-        var nodes = tree.nodes(root).reverse(),
-            links = tree.links(nodes)
+        var nodes = tree.nodes(root).reverse()
+        var links = tree.links(nodes)
 
+        function getWidthOfText(txt, fontname, fontsize){
+            if(getWidthOfText.e === undefined){
+                getWidthOfText.e = document.createElement('span');
+                getWidthOfText.e.style.visibility = "hidden";
+                document.body.appendChild(getWidthOfText.e);
+            }
+            getWidthOfText.e.style.fontSize = fontsize;
+            getWidthOfText.e.style.fontFamily = fontname;
+            getWidthOfText.e.innerText = txt;
+            return getWidthOfText.e.offsetWidth;
+        }
+
+        var heightMap = {}
+
+        var findLength = function () {
+            _.each(nodes, function (n) {
+                var nodesInLevel = _.where(nodes, { depth: n.depth })
+                var maxLength = 0
+                _.each(nodesInLevel, function (iN) {
+                    maxLength = Math.max(getWidthOfText(iN.name, 'sans-serif', '11px'), maxLength)
+                })
+                heightMap[n.depth] = maxLength
+            })
+        }
+        findLength()
+
+        var heights = [0]
+
+        _.each(_.keys(heightMap), function (d, idx) {
+            heights.push(
+                _.reduce(_.values(heightMap).splice(0, idx), function (memo, num) {
+                    return memo + num
+                }, 0) + heightMap[d]
+            )
+        })
         // Set widths between levels based on maxLabelLength.
         nodes.forEach(function (d) {
-            d.y = (d.depth * (maxLabelLength * 10)) // maxLabelLength * 10px
+            // console.log((heights[d.depth] * 7))
+            d.y = heights[d.depth] + (25 * d.depth) // maxLabelLength * 10px
             // alternatively to keep a fixed scale one can set a fixed depth per level
             // Normalize for fixed-depth by commenting out below line
             // d.y = (d.depth * 500); //500px per level.
@@ -426,15 +463,21 @@ export default function (treeData, $el, updateContact) {
             .attr('class', 'nodeCircle')
             .attr('r', 0)
             .style('fill', function (d) {
-                return d._children ? 'lightsteelblue' : '#fff'
+                return d._children ? '#6190e8' : '#fff'
             })
+            // .on('mouseover', function (node) {
+            //     tooltip(node)
+            // })
 
         nodeEnter.append('text')
             // .attr('x', function (d) {
             //     return d.children || d._children ? -10 : 10
             // })
             .attr('x', 10)
-            .attr('dy', '.35em')
+            .attr('dy', function (d) {
+                return d.children || d._children ? '-0.3em' : '.3em'
+            })
+            // .attr('dy', '.25em')
             .attr('transform', 'rotate(90)')
             .attr('class', 'nodeText')
             // .attr('text-anchor', function (d) {
@@ -448,9 +491,9 @@ export default function (treeData, $el, updateContact) {
         // phantom node to give us mouseover in a radius around it
         nodeEnter.append('circle')
             .attr('class', 'ghostCircle')
-            .attr('r', 30)
+            .attr('r', 25)
             .attr('opacity', 0.2) // change this to zero to hide the target area
-        .style('fill', 'red')
+        .style('fill', '#13CE66')
             .attr('pointer-events', 'mouseover')
             .on('mouseover', function (node) {
                 overCircle(node)
@@ -474,9 +517,12 @@ export default function (treeData, $el, updateContact) {
 
         // Change the circle fill depending on whether it has children and is collapsed
         node.select('circle.nodeCircle')
-            .attr('r', 4.5)
+            .attr('r', 7)
             .style('fill', function (d) {
-                return d._children ? 'lightsteelblue' : '#fff'
+                return d._children ? '#6190e8' : '#fff'
+            })
+            .style('stroke', function (d) {
+                return d.children || d._children ? '#6190e8' : '#ccc'
             })
 
         // Transition nodes to their new position.

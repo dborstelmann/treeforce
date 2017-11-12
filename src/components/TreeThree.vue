@@ -115,17 +115,15 @@ export default {
     }
 
     .overlay{
-        background-color:#EEE;
+        // background-color:#EEE;
     }
 
     .node circle {
-        fill: #fff;
-        stroke: steelblue;
         stroke-width: 1.5px;
     }
 
     .node text {
-        font-size:10px;
+        font-size: 11px;
         font-family:sans-serif;
     }
 
@@ -137,12 +135,12 @@ export default {
 
     .templink {
         fill: none;
-        stroke: red;
+        stroke: #3F536E;
         stroke-width: 3px;
     }
 
     .ghostCircle.show{
-        display:block;
+        display: block;
     }
 
     .ghostCircle, .activeDrag .ghostCircle{
