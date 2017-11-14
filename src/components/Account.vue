@@ -37,16 +37,20 @@
                                 size="small"
                                 @click="editModals[contact.id]=true"
                             ></at-button>
-                            <at-modal v-model="editModals[contact.id]" :title="contact.name" @on-confirm="editContact(contact)">
-                                <ContactModal :contact="contact"></ContactModal>
+                            <at-modal v-model="editModals[contact.id]" :title="contact.name" @on-confirm="editContact(contact)" okText="Save">
+                                <ContactModal :contact="contact" :contactSearch="contactSearch(contact.id)"></ContactModal>
                             </at-modal>
                         </div>
                         <div class="title">
                             {{contact.titleOverride || contact.title}}
                         </div>
-                        <div class="tags">
+                        <at-select @on-change="editContact(contact)" v-model="contact.parentId" filterable placeholder="Reports to..." size="small" notFoundText="No matching contact">
+                            <at-option :value="null">Not in hierarchy</at-option>
+                            <at-option v-for="c in contactSearch(contact.id)" :value="c.id">{{c.name}}</at-option>
+                        </at-select>
+                        <!-- <div class="tags">
                             <at-tag class="tag" v-if="contact.parentId || contact.reportstoid" color="primary">Reports to: {{findParent(contact)}}</at-tag>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
                 <div class="new-contact">
@@ -60,27 +64,13 @@
                     >
                         New Contact
                     </at-button>
-                    <at-modal v-model="newContactModal" title="New Contact" @on-confirm="createContact">
-                        <ContactModal :contact="newContact"></ContactModal>
+                    <at-modal v-model="newContactModal" title="New Contact" @on-confirm="createContact" okText="Save">
+                        <ContactModal :contact="newContact" :contactSearch="contactSearch()"></ContactModal>
                     </at-modal>
                 </div>
             </div>
             <div class="col-xs-24 col-md-18 col-lg-20">
-                <at-button-group size="large" class="button-group">
-                    <at-button
-                        class="button"
-                        v-bind:class="[!treeView ? 'active' : '']"
-                        @click="treeView=false"
-                    ><i class="icon icon-move"></i></at-button>
-                    <at-button
-                        class="button"
-                        v-bind:class="[treeView ? 'active' : '']"
-                        @click="treeView=true"
-                    ><i class="icon icon-share-2 rotate-90"></i></at-button>
-                </at-button-group>
-                <DragonDrop v-if="!treeView"></DragonDrop>
-                <!-- <TreeView v-if="treeView" :contacts="contacts"></TreeView> -->
-                <TreeThree v-if="treeView" :contacts="contacts"></TreeThree>
+                <TreeThree :contacts="contacts"></TreeThree>
             </div>
         </div>
         </div>
@@ -95,8 +85,6 @@ import { mapState } from 'vuex'
 import _ from 'underscore'
 import ContactModal from './ContactModal'
 import ContactFilters from './ContactFilters'
-import DragonDrop from './DragonDrop'
-import TreeView from './TreeView'
 import TreeThree from './TreeThree'
 
 const contactSchema = {
@@ -116,13 +104,10 @@ export default {
     components: {
         ContactModal,
         ContactFilters,
-        DragonDrop,
-        TreeView,
         TreeThree
     },
     data () {
         return {
-            treeView: true,
             contacts: [],
             contactMap: {},
             salesforceContactMap: {},
@@ -147,7 +132,7 @@ export default {
             if (state.contactSearch) {
                 return _.filter(this.contacts, c => c.name.toLowerCase().indexOf(state.contactSearch.toLowerCase()) > -1)
             }
-            return this.contacts
+            return _.sortBy(this.contacts, c => c.name.toLowerCase())
         }
     }),
     methods: {
@@ -160,6 +145,9 @@ export default {
                 }
                 this.$set(this.editModals, c.id, false)
             })
+        },
+        contactSearch (id) {
+            return _.sortBy(_.reject(this.contacts, c => c.id === id), c => c.name.toLowerCase())
         },
         mapAccount () {
             this.account = _.findWhere(this.$store.state.accounts, { sfid: this.$route.params.id })

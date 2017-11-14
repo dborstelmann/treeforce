@@ -186,12 +186,25 @@ export default function (treeData, $el, updateContact) {
         dragStarted = null
     }
 
+    $el.innerHTML = null
+
     // define the baseSvg, attaching a class for styling and the zoomListener
     var baseSvg = d3.select($el).append('svg')
         .attr('width', viewerWidth)
         .attr('height', viewerHeight)
         .attr('class', 'overlay')
         .call(zoomListener)
+
+
+    // var tip = d3.tip()
+    //     .attr('class', 'd3-tip')
+    //     .offset([-10, 0])
+    //     .html(function(d) {
+    //         console.log(d);
+    //         return "<strong>Frequency:</strong> <span style='color:red'>" + 'lkasdfkl' + "</span>";
+    //     })
+    //
+    // baseSvg.call(tip)
 
     // Define the drag listeners for drag/drop behaviour of nodes.
     var dragListener = d3.behavior.drag()
@@ -465,6 +478,8 @@ export default function (treeData, $el, updateContact) {
             .style('fill', function (d) {
                 return d._children ? '#6190e8' : '#fff'
             })
+            // .on('mouseover', tip.show)
+            // .on('mouseout', tip.hide)
             // .on('mouseover', function (node) {
             //     tooltip(node)
             // })
