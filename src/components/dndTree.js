@@ -195,17 +195,6 @@ export default function (treeData, $el, updateContact) {
         .attr('class', 'overlay')
         .call(zoomListener)
 
-
-    // var tip = d3.tip()
-    //     .attr('class', 'd3-tip')
-    //     .offset([-10, 0])
-    //     .html(function(d) {
-    //         console.log(d);
-    //         return "<strong>Frequency:</strong> <span style='color:red'>" + 'lkasdfkl' + "</span>";
-    //     })
-    //
-    // baseSvg.call(tip)
-
     // Define the drag listeners for drag/drop behaviour of nodes.
     var dragListener = d3.behavior.drag()
         .on('dragstart', function (d) {
@@ -478,11 +467,25 @@ export default function (treeData, $el, updateContact) {
             .style('fill', function (d) {
                 return d._children ? '#6190e8' : '#fff'
             })
-            // .on('mouseover', tip.show)
-            // .on('mouseout', tip.hide)
-            // .on('mouseover', function (node) {
-            //     tooltip(node)
-            // })
+            .on("mouseover", function (d) {
+                var clientRect = this.getBoundingClientRect()
+
+                var tip = document.createElement('div');
+                tip.className = 'tooltip'
+                tip.style.left = (clientRect.x - 100) + 'px'
+                tip.style.bottom = (window.innerHeight - clientRect.y + 6) + 'px'
+                tip.innerHTML = `
+                    <div class="pop-title pop-name">${d.contact.name}</div>
+                    <div class="pop-title">${d.contact.titleOverride || d.contact.title}</div>
+                    <div class="pop-title">${d.contact.email}</div>
+                    <div class="pop-title">${d.contact.phone}</div>
+                    <div class="pop-title">${d.contact.mobilephone}</div>
+                `
+                $el.appendChild(tip);
+            })
+            .on("mouseout", function() {
+                d3.select($el).select('div.tooltip').remove()
+            });
 
         nodeEnter.append('text')
             // .attr('x', function (d) {

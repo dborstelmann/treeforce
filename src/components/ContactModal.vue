@@ -19,11 +19,6 @@
             <div class="col-sm-24 col-md-12">
                 <at-input class="contact-input" v-model="contact.mobilephone" :value="contact.mobilephone" placeholder="Mobile phone (optional)"></at-input>
             </div>
-            <div class="col-sm-24 col-md-24">
-                <at-select v-model="contact.parentId" filterable placeholder="Reports to..." size="large" notFoundText="No matching contact">
-                    <at-option v-for="c in contactSearch" :value="c.id">{{c.name}}</at-option>
-                </at-select>
-            </div>
         </div>
     </div>
 </template>

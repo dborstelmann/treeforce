@@ -37,20 +37,19 @@
                                 size="small"
                                 @click="editModals[contact.id]=true"
                             ></at-button>
-                            <at-modal v-model="editModals[contact.id]" :title="contact.name" @on-confirm="editContact(contact)" okText="Save">
-                                <ContactModal :contact="contact" :contactSearch="contactSearch(contact.id)"></ContactModal>
+                            <at-modal v-model="editModals[contact.id]" :title="contact.name" @on-confirm="editContact(editModalsData[contact.id], true)" okText="Save">
+                                <ContactModal :contact="editModalsData[contact.id]" :contactSearch="contactSearch(contact.id)"></ContactModal>
                             </at-modal>
                         </div>
                         <div class="title">
                             {{contact.titleOverride || contact.title}}
                         </div>
-                        <at-select @on-change="editContact(contact)" v-model="contact.parentId" filterable placeholder="Reports to..." size="small" notFoundText="No matching contact">
-                            <at-option :value="null">Not in hierarchy</at-option>
-                            <at-option v-for="c in contactSearch(contact.id)" :value="c.id">{{c.name}}</at-option>
+                        <div class="tags" v-if="checkForRoot(contact)">
+                            <at-tag class="tag" color="primary">Root</at-tag>
+                        </div>
+                        <at-select v-else v-model="contact.parentId" @on-change="editContact(contact)" filterable placeholder="Reports to..." size="small" notFoundText="No matching contact">
+                            <at-option v-for="c in contactSearch(contact.id)" :key="c.id" :value="c.id">{{c.name}}</at-option>
                         </at-select>
-                        <!-- <div class="tags">
-                            <at-tag class="tag" v-if="contact.parentId || contact.reportstoid" color="primary">Reports to: {{findParent(contact)}}</at-tag>
-                        </div> -->
                     </div>
                 </div>
                 <div class="new-contact">
@@ -74,9 +73,6 @@
             </div>
         </div>
         </div>
-            <!-- <draggable v-model="contacts" @start="drag=true" @end="drag=false"> -->
-
-            <!-- </draggable> -->
     </div>
 </template>
 
@@ -114,7 +110,8 @@ export default {
             account: {},
             newContactModal: false,
             newContact: _.extend({}, contactSchema),
-            editModals: {}
+            editModals: {},
+            editModalsData: {}
         }
     },
     created () {
@@ -144,10 +141,14 @@ export default {
                     this.salesforceContactMap[c.sfid] = c.name
                 }
                 this.$set(this.editModals, c.id, false)
+                this.$set(this.editModalsData, c.id, _.extend({}, c))
             })
         },
         contactSearch (id) {
             return _.sortBy(_.reject(this.contacts, c => c.id === id), c => c.name.toLowerCase())
+        },
+        checkForRoot (contact) {
+            return (!contact.parentId && !contact.reportstoid) && (_.findWhere(this.contacts, {parentId: contact.id}) || (contact.sfid && _.findWhere(this.contacts, {reportstoid: contact.sfid})))
         },
         mapAccount () {
             this.account = _.findWhere(this.$store.state.accounts, { sfid: this.$route.params.id })
@@ -167,10 +168,14 @@ export default {
         createdContact (newContact) {
             this.contacts.push(newContact)
             this.contactMap[newContact.id] = newContact.name
+            this.editModalsData[newContact.id] = _.extend({}, newContact)
             this.newContact = _.extend({}, contactSchema)
             this.$Message.success('Contact created!')
         },
-        editContact (updatedContact) {
+        editContact (updatedContact, fromModal) {
+            if (fromModal) {
+                updatedContact = _.extend(_.findWhere(this.contacts, {id: updatedContact.id}), updatedContact)
+            }
             if (updatedContact.firstname && updatedContact.lastname && (updatedContact.titleOverride || updatedContact.title)) {
                 updatedContact.name = updatedContact.firstname + ' ' + updatedContact.lastname
                 this.$store.dispatch('editContact', updatedContact).then(
@@ -184,6 +189,7 @@ export default {
         editedContact (editedContact, originalContact) {
             originalContact = editedContact
             this.contactMap[editedContact.id] = editedContact.name
+            this.editModalsData[editedContact.id] = _.extend({}, editedContact)
             this.$Message.success('Contact edited!')
         },
         errorMessage () {
@@ -257,7 +263,6 @@ export default {
                 border: 1px solid #c5d9e8;
                 border-radius: 4px;
                 color: #6190e8;
-                cursor: pointer;
                 transition: background .2s;
                 padding: 6px 10px;
 
