@@ -179,6 +179,37 @@ export default {
         } catch (e) {
             throw e
         }
+    },
+    async removeContact ({ commit }, contact) {
+        console.log(contact)
+        try {
+            const response = await Vue.http.post(
+                graphURL,
+                {
+                    query: `
+                        mutation {
+                            deleteContactById(input: {
+                                id: ${contact},
+                            }) {
+                                contact {
+                                    parentId
+                                    lastname
+                                    accountid
+                                    name
+                                    title
+                                    firstname
+                                    id
+                                }
+                            }
+                        }
+
+                    `
+                }
+            )
+            return response.body.data.deleteContactById.contact
+        } catch (e) {
+            throw e
+        }
     }
     // async editTodo ({ commit }, { todo, updatedText }) {
     //     try {

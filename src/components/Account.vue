@@ -38,7 +38,7 @@
                                 @click="editModals[contact.id]=true"
                             ></at-button>
                             <at-modal v-model="editModals[contact.id]" :title="contact.name" @on-confirm="editContact(editModalsData[contact.id], true)" okText="Save">
-                                <ContactModal :contact="editModalsData[contact.id]" :contactSearch="contactSearch(contact.id)"></ContactModal>
+                                <ContactModal :new="false" :removeContact="removeContact" :contact="editModalsData[contact.id]" :contactSearch="contactSearch(contact.id)"></ContactModal>
                             </at-modal>
                         </div>
                         <div class="title">
@@ -66,7 +66,7 @@
                         New Contact
                     </at-button>
                     <at-modal v-model="newContactModal" title="New Contact" @on-confirm="createContact" okText="Save">
-                        <ContactModal :contact="newContact" :contactSearch="contactSearch()"></ContactModal>
+                        <ContactModal :new="true" :removeContact="removeContact" :contact="newContact" :contactSearch="contactSearch()"></ContactModal>
                     </at-modal>
                 </div>
             </div>
@@ -195,6 +195,16 @@ export default {
             this.contactMap[editedContact.id] = editedContact.name
             this.editModalsData[editedContact.id] = _.extend({}, editedContact)
             this.$Message.success('Contact edited!')
+        },
+        removeContact (contact, fromModal) {
+            this.$store.dispatch('removeContact', contact).then(this.removedContact, this.errorMessage)
+        },
+        removedContact (contact) {
+            this.contacts = _.reject(this.contacts, (c) => {
+                return c.id === contact.id
+            })
+            delete this.contactMap[contact.id]
+            this.$Message.warning('Contact removed!')
         },
         errorMessage () {
             this.$Message.error('Server error')
