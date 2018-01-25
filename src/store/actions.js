@@ -40,6 +40,7 @@ export default {
                         query {
                             allContacts (condition: {accountid: "${sfid}"}) {
                                 nodes {
+                                    colorCode
                                     createdLocally
                                     parentId
                                     titleOverride
@@ -93,6 +94,7 @@ export default {
                                 contact: ${toQueryString(contact)}
                             }) {
                                 contact {
+                                    colorCode
                                     createdLocally
                                     parentId
                                     titleOverride
@@ -141,6 +143,7 @@ export default {
                                 contactPatch: ${toQueryString(updatedContact)}
                             }) {
                                 contact {
+                                    colorCode
                                     createdLocally
                                     parentId
                                     titleOverride

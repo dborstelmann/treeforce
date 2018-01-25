@@ -73,7 +73,7 @@ export default {
         },
         buildTree () {
             if (this.contacts.length) {
-                Tree(this.hierarchyContacts(this.root), this.$el, this.updateParent)
+                Tree(this.hierarchyContacts(this.root), this.contactsInTree, this.$el, this.updateParent)
             }
         },
         updateParent (updatedContact) {
@@ -85,6 +85,8 @@ export default {
 
 <style lang="less">
 .tree {
+    border: 1px solid #C5D9E8;
+    border-radius: 4px;
     width: 100%;
     height: 100vh;
 
@@ -157,7 +159,7 @@ export default {
         border: 1px solid #ccc;
         border-radius: 4px;
         padding: 10px;
-        width: 200px;
+        // width: 200px;
 
         .pop-title {
             font-size: 12px;

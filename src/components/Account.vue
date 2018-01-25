@@ -92,6 +92,8 @@ const contactSchema = {
     phone: '',
     mobilephone: '',
     accountid: '',
+    uploadedImageUrl: '',
+    colorCode: '',
     createdLocally: true
 }
 

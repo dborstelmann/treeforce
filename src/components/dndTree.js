@@ -30,7 +30,7 @@ import * as d3 from 'd3'
 import _ from 'underscore'
 
 // Get JSON data
-export default function (treeData, $el, updateContact) {
+export default function (treeData, contactsInTree, $el, updateContact) {
     var nodes = null
     var domNode = null
     var x = null
@@ -194,6 +194,22 @@ export default function (treeData, $el, updateContact) {
         .attr('height', viewerHeight)
         .attr('class', 'overlay')
         .call(zoomListener)
+
+    var defs = baseSvg.append('svg:defs')
+
+    // _.each(contactsInTree, (c) => {
+    //     defs.append("svg:pattern")
+    //       .attr("id", 'image-' + c.id)
+    //       .attr("width", 14)
+    //       .attr("height", 14)
+    //       .attr("patternUnits", "userSpaceOnUse")
+    //       .append("svg:image")
+    //       .attr("xlink:href", c.uploadedImageUrl)
+    //       .attr("width", 14)
+    //       .attr("height", 14)
+    //       .attr("x", 0)
+    //       .attr("y", 0);
+    // });
 
     // Define the drag listeners for drag/drop behaviour of nodes.
     var dragListener = d3.behavior.drag()
@@ -465,7 +481,7 @@ export default function (treeData, $el, updateContact) {
             .attr('class', 'nodeCircle')
             .attr('r', 0)
             .style('fill', function (d) {
-                return d._children ? '#6190e8' : '#fff'
+                return d._children ? '#3f536e' : '#fff'
             })
             .on("mouseover", function (d) {
                 var clientRect = this.getBoundingClientRect()
@@ -475,12 +491,15 @@ export default function (treeData, $el, updateContact) {
                 tip.style.left = (clientRect.x - 100) + 'px'
                 tip.style.bottom = (window.innerHeight - clientRect.y + 6) + 'px'
                 tip.innerHTML = `
-                    <div class="pop-title pop-name">${d.contact.name}</div>
-                    <div class="pop-title">${d.contact.titleOverride || d.contact.title}</div>
-                    <div class="pop-title">${d.contact.email}</div>
-                    <div class="pop-title">${d.contact.phone}</div>
-                    <div class="pop-title">${d.contact.mobilephone}</div>
+                    <div class="pop-title pop-name">${d.contact.name || ''}</div>
+                    <div class="pop-title">${d.contact.titleOverride || d.contact.title || ''}</div>
+                    <div class="pop-title">${d.contact.email || ''}</div>
+                    <div class="pop-title">${d.contact.phone || ''}</div>
+                    <div class="pop-title">${d.contact.mobilephone || ''}</div>
                 `
+                if (d.contact.uploadedImageUrl) {
+                  tip.innerHTML = `<img width="80px" src="${d.contact.uploadedImageUrl || ''}">` + tip.innerHTML;
+                }
                 $el.appendChild(tip);
             })
             .on("mouseout", function() {
@@ -536,11 +555,21 @@ export default function (treeData, $el, updateContact) {
         // Change the circle fill depending on whether it has children and is collapsed
         node.select('circle.nodeCircle')
             .attr('r', 7)
+            // .style("fill", "#fff")
             .style('fill', function (d) {
-                return d._children ? '#6190e8' : '#fff'
+                // if (d.contact.uploadedImageUrl) {
+                //     return `url(#image-${d.contact.id})`;
+                // }
+                if (d.contact.colorCode && d._children) {
+                  return '#' + d.contact.colorCode;
+                }
+                return d._children ? '#3f536e' : '#fff'
             })
             .style('stroke', function (d) {
-                return d.children || d._children ? '#6190e8' : '#ccc'
+                if (d.contact.colorCode) {
+                  return '#' + d.contact.colorCode;
+                }
+                return d.children || d._children ? '#3f536e' : '#ccc'
             })
 
         // Transition nodes to their new position.
