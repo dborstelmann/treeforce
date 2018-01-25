@@ -125,7 +125,7 @@ export default {
     }
 
     .node circle {
-        stroke-width: 1.5px;
+        stroke-width: 2.5px;
     }
 
     .node text {
