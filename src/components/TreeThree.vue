@@ -34,13 +34,14 @@ export default {
             return map
         },
         root () {
-            let root = {}
-            _.each(_.keys(this.parentMap), (p) => {
-                if (!this.parentMap[p].parentId && !this.parentMap[p].reportstoid) {
-                    root = this.parentMap[p]
-                }
-            })
-            return root
+            // let root = {}
+            // _.each(_.keys(this.parentMap), (p) => {
+            //     if (!this.parentMap[p].parentId && !this.parentMap[p].reportstoid) {
+            //         root = this.parentMap[p]
+            //     }
+            // })
+            // console.log(root)
+            return {id: 0, name: 'Root', parentId: null}
         },
         contactsInTree () {
             return _.filter(this.contacts, c => this.parentMap[c.id || c.sfid] || c.parentId || c.reportstoid)
@@ -73,7 +74,7 @@ export default {
         },
         buildTree () {
             if (this.contacts.length) {
-                Tree(this.hierarchyContacts(this.root), this.contactsInTree, this.$el, this.updateParent)
+                Tree(this.hierarchyContacts(this.root), this.$el, this.updateParent)
             }
         },
         updateParent (updatedContact) {

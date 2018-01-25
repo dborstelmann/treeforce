@@ -44,10 +44,12 @@
                         <div class="title">
                             {{contact.titleOverride || contact.title}}
                         </div>
-                        <div class="tags" v-if="checkForRoot(contact)">
+                        <!-- <div class="tags" v-if="checkForRoot(contact)">
                             <at-tag class="tag" color="primary">Root</at-tag>
-                        </div>
-                        <at-select v-else v-model="contact.parentId" @on-change="editContact(contact)" filterable placeholder="Reports to..." size="small" notFoundText="No matching contact">
+                        </div> -->
+                        <at-select v-model="contact.parentId" @on-change="editContact(contact)" filterable placeholder="Reports to..." size="small" notFoundText="No matching contact">
+                            <at-option :value="null">Remove from tree</at-option>
+                            <at-option :value="0">Root</at-option>
                             <at-option v-for="c in contactSearch(contact.id)" :key="c.id" :value="c.id">{{c.name}}</at-option>
                         </at-select>
                     </div>

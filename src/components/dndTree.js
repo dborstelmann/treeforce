@@ -30,7 +30,7 @@ import * as d3 from 'd3'
 import _ from 'underscore'
 
 // Get JSON data
-export default function (treeData, contactsInTree, $el, updateContact) {
+export default function (treeData, $el, updateContact) {
     var nodes = null
     var domNode = null
     var x = null

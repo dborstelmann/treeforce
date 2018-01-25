@@ -38,10 +38,7 @@ export default {
     props: [
         'contact',
         'contactSearch'
-    ],
-    mounted () {
-        console.log(this.contact.colorCode)
-    }
+    ]
 }
 </script>
 
