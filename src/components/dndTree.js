@@ -189,6 +189,8 @@ export default function (treeData, $el, updateContact) {
     $el.innerHTML = null
 
     // define the baseSvg, attaching a class for styling and the zoomListener
+    d3.select($el).empty();
+    
     var baseSvg = d3.select($el).append('svg')
         .attr('width', viewerWidth)
         .attr('height', viewerHeight)
