@@ -190,7 +190,7 @@ export default function (treeData, $el, updateContact) {
 
     // define the baseSvg, attaching a class for styling and the zoomListener
     d3.select($el).empty();
-    
+
     var baseSvg = d3.select($el).append('svg')
         .attr('width', viewerWidth)
         .attr('height', viewerHeight)
@@ -483,7 +483,7 @@ export default function (treeData, $el, updateContact) {
             .attr('class', 'nodeCircle')
             .attr('r', 0)
             .style('fill', function (d) {
-                return d._children ? '#3f536e' : '#fff'
+                return d._children ? '#999' : '#fff'
             })
             .on("mouseover", function (d) {
                 var clientRect = this.getBoundingClientRect()
@@ -565,13 +565,13 @@ export default function (treeData, $el, updateContact) {
                 if (d.contact.colorCode && d._children) {
                   return '#' + d.contact.colorCode;
                 }
-                return d._children ? '#3f536e' : '#fff'
+                return d._children ? '#999' : '#fff'
             })
             .style('stroke', function (d) {
                 if (d.contact.colorCode) {
                   return '#' + d.contact.colorCode;
                 }
-                return d.children || d._children ? '#3f536e' : '#ccc'
+                return d.children || d._children ? '#999' : '#ccc'
             })
 
         // Transition nodes to their new position.
