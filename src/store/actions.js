@@ -1,5 +1,5 @@
 import Vue from 'vue'
-const graphURL = 'https://trees-graph.herokuapp.com/graphql'
+const graphURL = 'https://trees-graph-staging.herokuapp.com/graphql'
 
 const toQueryString = input => JSON.stringify(input).replace(/"([^(")"]+)":/g, '$1:')
 
