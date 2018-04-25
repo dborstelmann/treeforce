@@ -69,7 +69,13 @@
                 </div>
             </div>
             <div class="col-xs-24 col-md-18 col-lg-20">
-                <TreeThree :contacts="contacts"></TreeThree>
+                <div class="orientation-toggle" style="margin-bottom: 10px;">
+                  <at-button-group>
+                    <at-button :type="[orientation === 'horizontal' ? 'primary' : '']" @click="orientation = 'horizontal'">Horizontal</at-button>
+                    <at-button :type="[orientation === 'vertical' ? 'primary' : '']" @click="orientation = 'vertical'">Vertical</at-button>
+                  </at-button-group>
+                </div>
+                <TreeThree :contacts="contacts" :orientation="orientation"></TreeThree>
             </div>
         </div>
         </div>
@@ -113,7 +119,8 @@ export default {
             newContactModal: false,
             newContact: _.extend({}, contactSchema),
             modalContact: {},
-            modalOn: false
+            modalOn: false,
+            orientation: 'horizontal'
         }
     },
     created () {

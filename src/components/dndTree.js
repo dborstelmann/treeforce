@@ -30,7 +30,7 @@ import * as d3 from 'd3'
 import _ from 'underscore'
 
 // Get JSON data
-export default function (treeData, $el, updateContact) {
+export default function (treeData, $el, updateContact, orientation) {
     var nodes = null
     var domNode = null
     var x = null
@@ -69,7 +69,10 @@ export default function (treeData, $el, updateContact) {
     // define a d3 diagonal projection for use by the node paths later on.
     var diagonal = d3.svg.diagonal()
         .projection(function (d) {
-            return [d.x, d.y]
+            if (orientation === 'vertical') {
+                return [d.x, d.y]
+            }
+            return [d.y, d.x]
         })
 
     // A recursive helper function for performing some setup by walking through all nodes
@@ -366,8 +369,15 @@ export default function (treeData, $el, updateContact) {
         scale = zoomListener.scale()
         x = -source.x0
         y = -source.y0
-        x = x * scale + viewerWidth / 2
-        y = y * scale + 20
+        if (orientation === 'vertical') {
+          x = x * scale + viewerWidth / 2
+          y = y * scale + 20
+        } else {
+          x = 20
+          y = -viewerHeight / 2
+        }
+        console.log(x);
+        console.log(y);
         d3.select('g').transition()
             .duration(duration)
             .attr('transform', 'translate(' + x + ',' + y + ')scale(' + scale + ')')
@@ -413,7 +423,7 @@ export default function (treeData, $el, updateContact) {
             }
         }
         childCount(0, root)
-        var newHeight = d3.max(levelWidth) * 35 // 25 pixels per line
+        var newHeight = d3.max(levelWidth) * 55 // 25 pixels per line
         tree = tree.size([newHeight, viewerWidth])
 
         // Compute the new tree layout.
@@ -439,7 +449,8 @@ export default function (treeData, $el, updateContact) {
                 var nodesInLevel = _.where(nodes, { depth: n.depth })
                 var maxLength = 0
                 _.each(nodesInLevel, function (iN) {
-                    maxLength = Math.max(getWidthOfText(iN.name, 'sans-serif', '11px'), maxLength)
+                    var longerText = iN.name.length > iN.contact.titleOverride ? iN.name : iN.contact.titleOverride
+                    maxLength = Math.max(getWidthOfText(longerText, 'sans-serif', '11px'), maxLength)
                 })
                 heightMap[n.depth] = maxLength
             })
@@ -509,23 +520,39 @@ export default function (treeData, $el, updateContact) {
             });
 
         nodeEnter.append('text')
-            // .attr('x', function (d) {
-            //     return d.children || d._children ? -10 : 10
-            // })
             .attr('x', 10)
             .attr('dy', function (d) {
                 return d.children || d._children ? '-0.3em' : '.3em'
             })
-            // .attr('dy', '.25em')
-            .attr('transform', 'rotate(90)')
+            .attr('transform', function () {
+                if (orientation === 'vertical') {
+                  return 'rotate(90)'
+                }
+                return ''
+            })
             .attr('class', 'nodeText')
-            // .attr('text-anchor', function (d) {
-            //     return d.children || d._children ? 'end' : 'start'
-            // })
             .text(function (d) {
                 return d.name
             })
             .style('fill-opacity', 0)
+
+        nodeEnter.append('text')
+            .attr('x', 10)
+            .attr('dy', function (d) {
+                return d.children || d._children ? '1em' : '1.4em'
+            })
+            .attr('transform', function () {
+                if (orientation === 'vertical') {
+                  return 'rotate(90)'
+                }
+                return ''
+            })
+            .attr('class', 'titleText')
+            .text(function (d) {
+                return d.contact.titleOverride
+            })
+            .style('fill-opacity', 0)
+            .style('fill', '#777')
 
         // phantom node to give us mouseover in a radius around it
         nodeEnter.append('circle')
@@ -542,16 +569,16 @@ export default function (treeData, $el, updateContact) {
             })
 
         // Update the text to reflect whether node has children or not.
-        node.select('text')
+        node.select('nodeText')
             .attr('x', 10)
-            // .attr('x', function (d) {
-            //     return d.children || d._children ? -10 : 10
-            // })
-            // .attr('text-anchor', function (d) {
-            //     return d.children || d._children ? 'end' : 'start'
-            // })
             .text(function (d) {
                 return d.name
+            })
+
+        node.select('titleText')
+            .attr('x', 10)
+            .text(function (d) {
+                return d.contact.titleOverride
             })
 
         // Change the circle fill depending on whether it has children and is collapsed
@@ -578,11 +605,14 @@ export default function (treeData, $el, updateContact) {
         var nodeUpdate = node.transition()
             .duration(duration)
             .attr('transform', function (d) {
-                return 'translate(' + d.x + ',' + d.y + ')'
+                if (orientation === 'vertical') {
+                    return 'translate(' + d.x + ',' + d.y + ')'
+                }
+                return 'translate(' + d.y + ',' + d.x + ')'
             })
 
         // Fade the text in
-        nodeUpdate.select('text')
+        nodeUpdate.selectAll('text')
             .style('fill-opacity', 1)
 
         // Transition exiting nodes to the parent's new position.

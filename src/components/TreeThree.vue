@@ -1,6 +1,6 @@
 <template>
-  <div class="tree">
-  </div>
+    <div class="tree">
+    </div>
 </template>
 
 <script>
@@ -9,7 +9,7 @@ import Tree from './dndTree'
 
 export default {
     name: 'tree-three',
-    props: ['contacts'],
+    props: ['contacts', 'orientation'],
     mounted () {
         this.buildTree()
     },
@@ -19,6 +19,11 @@ export default {
                 this.buildTree()
             },
             deep: true
+        },
+        orientation: {
+            handler () {
+                this.buildTree()
+            }
         }
     },
     computed: {
@@ -74,7 +79,7 @@ export default {
         },
         buildTree () {
             if (this.contacts.length) {
-                Tree(this.hierarchyContacts(this.root), this.$el, this.updateParent)
+                Tree(this.hierarchyContacts(this.root), this.$el, this.updateParent, this.orientation)
             }
         },
         updateParent (updatedContact) {
@@ -92,7 +97,7 @@ export default {
     height: 100vh;
 
     @media screen and (min-width: 480px) {
-        height: calc(~'100vh - 150px');
+        height: calc(~'100vh - 180px');
     }
 
     // .node {
