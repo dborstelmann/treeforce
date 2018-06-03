@@ -28,7 +28,7 @@
             <div class="col-xs-24 col-md-6 col-lg-4">
                 <ContactFilters></ContactFilters>
                 <div class="contact-list">
-                    <div v-for="contact in filteredContacts" :key="contact.id" class="contact">
+                    <div v-for="contact in filteredContacts" :key="contact.id" class="contact" @mouseenter="hoveredContact = contact" @mouseleave="hoveredContact = null">
                         <div class="name">
                             {{contact.firstname}} {{contact.lastname}}
                             <i v-if="contact.sfid" class="icon icon-download"></i>
@@ -39,6 +39,13 @@
                                 circle
                                 size="small"
                                 @click="openModal(contact)"
+                            ></at-button>
+                            <at-button
+                                class="zoom-button"
+                                icon="icon-maximize-2"
+                                circle
+                                size="small"
+                                @click="zoomTo(contact)"
                             ></at-button>
                         </div>
                         <div class="title">
@@ -69,13 +76,18 @@
                 </div>
             </div>
             <div class="col-xs-24 col-md-18 col-lg-20">
-                <div class="orientation-toggle" style="margin-bottom: 10px;">
-                  <at-button-group>
+                <div class="toggles" style="margin-bottom: 10px;">
+                  <at-button-group style="margin-right: 10px;">
                     <at-button :type="[orientation === 'horizontal' ? 'primary' : '']" @click="orientation = 'horizontal'">Horizontal</at-button>
                     <at-button :type="[orientation === 'vertical' ? 'primary' : '']" @click="orientation = 'vertical'">Vertical</at-button>
                   </at-button-group>
+                  <at-button-group style="margin-right: 10px;">
+                    <at-button :type="[locked ? 'primary' : '']" @click="locked = true">Locked</at-button>
+                    <at-button :type="[!locked ? 'primary' : '']" @click="locked = false">Unlocked</at-button>
+                  </at-button-group>
+                  <at-button :disabled="!zoomedContact ? 'disabled' : false" type="primary" @click="zoomedContact = null">Clear Zoom</at-button>
                 </div>
-                <TreeThree :contacts="contacts" :orientation="orientation"></TreeThree>
+                <TreeThree :contacts="contacts" :orientation="orientation" :locked="locked" :zoomedContact="zoomedContact" :hoveredContact="hoveredContact"></TreeThree>
             </div>
         </div>
         </div>
@@ -120,7 +132,10 @@ export default {
             newContact: _.extend({}, contactSchema),
             modalContact: {},
             modalOn: false,
-            orientation: 'horizontal'
+            orientation: 'horizontal',
+            locked: true,
+            zoomedContact: null,
+            hoveredContact: null
         }
     },
     created () {
@@ -166,6 +181,9 @@ export default {
         openModal (contact) {
             this.modalContact = contact
             this.modalOn = true
+        },
+        zoomTo (contact) {
+            this.zoomedContact = contact
         },
         createContact () {
             if (this.newContact.firstname && this.newContact.lastname && this.newContact.titleOverride) {
@@ -296,8 +314,12 @@ export default {
                     margin-bottom: 2px;
                 }
 
-                .edit-button {
+                .edit-button, .zoom-button {
                     float: right;
+                }
+
+                .zoom-button {
+                    margin-right: 4px;
                 }
 
                 // &:hover {

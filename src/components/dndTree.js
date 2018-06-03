@@ -30,7 +30,7 @@ import * as d3 from 'd3'
 import _ from 'underscore'
 
 // Get JSON data
-export default function (treeData, $el, updateContact, orientation) {
+export default function (treeData, $el, updateContact, orientation, locked) {
     var nodes = null
     var domNode = null
     var x = null
@@ -148,6 +148,7 @@ export default function (treeData, $el, updateContact, orientation) {
     var zoomListener = d3.behavior.zoom().scaleExtent([0.1, 10]).on('zoom', zoom)
 
     function initiateDrag (d, domNode) {
+        if (locked) return;
         draggingNode = d
         d3.select(domNode).select('.ghostCircle').attr('pointer-events', 'none')
         d3.selectAll('.ghostCircle').attr('class', 'ghostCircle show')
@@ -219,6 +220,8 @@ export default function (treeData, $el, updateContact, orientation) {
     // Define the drag listeners for drag/drop behaviour of nodes.
     var dragListener = d3.behavior.drag()
         .on('dragstart', function (d) {
+            if (locked) return;
+
             if (d === root) {
                 return
             }
@@ -228,6 +231,8 @@ export default function (treeData, $el, updateContact, orientation) {
             // it's important that we suppress the mouseover event on the node being dragged. Otherwise it will absorb the mouseover event and the underlying node will not detect it d3.select(this).attr('pointer-events', 'none');
         })
         .on('drag', function (d) {
+            if (locked) return;
+
             if (d === root) {
                 return
             }
@@ -263,6 +268,8 @@ export default function (treeData, $el, updateContact, orientation) {
             node.attr('transform', 'translate(' + d.x0 + ',' + d.y0 + ')')
             updateTempConnector()
         }).on('dragend', function (d) {
+            if (locked) return;
+
             if (d === root) {
                 return
             }
@@ -295,6 +302,8 @@ export default function (treeData, $el, updateContact, orientation) {
         })
 
     function endDrag () {
+        if (locked) return;
+
         selectedNode = null
         d3.selectAll('.ghostCircle').attr('class', 'ghostCircle')
         d3.select(domNode).attr('class', 'node')
@@ -485,6 +494,9 @@ export default function (treeData, $el, updateContact, orientation) {
         var nodeEnter = node.enter().append('g')
             .call(dragListener)
             .attr('class', 'node')
+            .attr('data-id', function (d) {
+                return d.contact.id
+            })
             .attr('transform', function (d) {
                 return 'translate(' + source.x0 + ',' + source.y0 + ')'
             })

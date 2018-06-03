@@ -9,9 +9,14 @@ import Tree from './dndTree'
 
 export default {
     name: 'tree-three',
-    props: ['contacts', 'orientation'],
+    props: ['contacts', 'orientation', 'locked', 'zoomedContact', 'hoveredContact'],
     mounted () {
         this.buildTree()
+    },
+    data () {
+        return {
+            currentDiv: null
+        }
     },
     watch: {
         contacts: {
@@ -20,9 +25,29 @@ export default {
             },
             deep: true
         },
-        orientation: {
-            handler () {
-                this.buildTree()
+        orientation () {
+            this.buildTree()
+        },
+        locked () {
+            this.buildTree()
+        },
+        root () {
+            this.buildTree()
+        },
+        hoveredContact () {
+            if (this.hoveredContact) {
+                const els = this.$el.getElementsByClassName('highlighted')
+                if (els.length) {
+                    _.each(els, el => {
+                        el.classList.remove('highlighted')
+                    })
+                }
+                const svgDiv = this.$el.querySelector('[data-id="' + String(this.hoveredContact.id) + '"]').children[0]
+                svgDiv.classList.add('highlighted')
+                this.currentDiv = svgDiv
+            } else if (this.currentDiv) {
+                this.currentDiv.classList.remove('highlighted')
+                this.currentDiv = null
             }
         }
     },
@@ -46,6 +71,9 @@ export default {
             //     }
             // })
             // console.log(root)
+            if (this.zoomedContact) {
+                return this.zoomedContact
+            }
             return {id: 0, name: 'Root', parentId: null}
         },
         contactsInTree () {
@@ -79,7 +107,7 @@ export default {
         },
         buildTree () {
             if (this.contacts.length) {
-                Tree(this.hierarchyContacts(this.root), this.$el, this.updateParent, this.orientation)
+                Tree(this.hierarchyContacts(this.root), this.$el, this.updateParent, this.orientation, this.locked)
             }
         },
         updateParent (updatedContact) {
@@ -123,6 +151,12 @@ export default {
 
     .node {
         cursor: pointer;
+    }
+
+    .highlighted {
+        fill: orange !important;
+        stroke: orange !important;
+        stroke-width: 20px !important;
     }
 
     .overlay{
