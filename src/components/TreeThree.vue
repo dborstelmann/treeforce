@@ -42,9 +42,13 @@ export default {
                         el.classList.remove('highlighted')
                     })
                 }
-                const svgDiv = this.$el.querySelector('[data-id="' + String(this.hoveredContact.id) + '"]').children[0]
-                svgDiv.classList.add('highlighted')
-                this.currentDiv = svgDiv
+                const parentDiv = this.$el.querySelector('[data-id="' + String(this.hoveredContact.id) + '"]')
+
+                if (parentDiv) {
+                    const svgDiv = parentDiv.children[0]
+                    svgDiv.classList.add('highlighted')
+                    this.currentDiv = svgDiv
+                }
             } else if (this.currentDiv) {
                 this.currentDiv.classList.remove('highlighted')
                 this.currentDiv = null
