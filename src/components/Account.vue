@@ -152,7 +152,17 @@ export default {
         filteredContacts (state) {
             if (state.contactSearch) {
                 return _.filter(this.contacts, c => {
-                    return c.name.toLowerCase().indexOf(state.contactSearch.toLowerCase()) > -1 || c.title.toLowerCase().indexOf(state.contactSearch.toLowerCase()) || c.titleOverride.toLowerCase().indexOf(state.contactSearch.toLowerCase())
+                    let searchFilter = false
+                    if (c.name && c.name.toLowerCase().indexOf(state.contactSearch.toLowerCase()) > -1) {
+                        searchFilter = true
+                    }
+                    if (c.title && c.title.toLowerCase().indexOf(state.contactSearch.toLowerCase()) > -1) {
+                        searchFilter = true
+                    }
+                    if (c.titleOverride && c.titleOverride.toLowerCase().indexOf(state.contactSearch.toLowerCase()) > -1) {
+                        searchFilter = true
+                    }
+                    return searchFilter
                 })
             }
             return _.sortBy(this.contacts, c => c.name.toLowerCase())
