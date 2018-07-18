@@ -78,12 +78,12 @@
             <div class="col-xs-24 col-md-18 col-lg-20">
                 <div class="toggles" style="margin-bottom: 10px;">
                   <at-button-group style="margin-right: 10px;">
-                    <at-button :type="[orientation === 'horizontal' ? 'primary' : '']" @click="orientation = 'horizontal'">Horizontal</at-button>
-                    <at-button :type="[orientation === 'vertical' ? 'primary' : '']" @click="orientation = 'vertical'">Vertical</at-button>
+                    <at-button :type="orientation === 'horizontal' ? 'primary' : ''" @click="orientation = 'horizontal'">Horizontal</at-button>
+                    <at-button :type="orientation === 'vertical' ? 'primary' : ''" @click="orientation = 'vertical'">Vertical</at-button>
                   </at-button-group>
                   <at-button-group style="margin-right: 10px;">
-                    <at-button :type="[locked ? 'primary' : '']" @click="locked = true">Locked</at-button>
-                    <at-button :type="[!locked ? 'primary' : '']" @click="locked = false">Unlocked</at-button>
+                    <at-button :type="locked ? 'primary' : ''" @click="locked = true">Locked</at-button>
+                    <at-button :type="!locked ? 'primary' : ''" @click="locked = false">Unlocked</at-button>
                   </at-button-group>
                   <at-button :disabled="!zoomedContact ? 'disabled' : false" type="primary" @click="zoomedContact = null">Clear Zoom</at-button>
                 </div>

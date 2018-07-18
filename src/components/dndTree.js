@@ -521,6 +521,8 @@ export default function (treeData, $el, updateContact, orientation, locked) {
                     <div class="pop-title">${d.contact.email || ''}</div>
                     <div class="pop-title">${d.contact.phone || ''}</div>
                     <div class="pop-title">${d.contact.mobilephone || ''}</div>
+                    <div class="pop-title">${d.contact.faceoff || ''}</div>
+                    <div class="pop-title">${d.contact.nickname || ''}</div>
                 `
                 if (d.contact.uploadedImageUrl) {
                   tip.innerHTML = `<img width="80px" src="${d.contact.uploadedImageUrl || ''}">` + tip.innerHTML;

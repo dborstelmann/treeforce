@@ -40,6 +40,9 @@ export default {
                         query {
                             allContacts (condition: {accountid: "${sfid}"}) {
                                 nodes {
+                                    nickname
+                                    notes
+                                    faceoff
                                     colorCode
                                     createdLocally
                                     parentId
@@ -94,6 +97,9 @@ export default {
                                 contact: ${toQueryString(contact)}
                             }) {
                                 contact {
+                                    nickname
+                                    notes
+                                    faceoff
                                     colorCode
                                     createdLocally
                                     parentId
@@ -143,6 +149,9 @@ export default {
                                 contactPatch: ${toQueryString(updatedContact)}
                             }) {
                                 contact {
+                                    nickname
+                                    notes
+                                    faceoff
                                     colorCode
                                     createdLocally
                                     parentId
