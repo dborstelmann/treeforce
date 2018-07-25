@@ -382,8 +382,8 @@ export default function (treeData, $el, updateContact, orientation, locked, face
           x = x * scale + viewerWidth / 2
           y = y * scale + 20
         } else {
+          y = x + viewerHeight / 2
           x = 20
-          y = -viewerHeight / 2
         }
         d3.select('g').transition()
             .duration(duration)
@@ -432,7 +432,6 @@ export default function (treeData, $el, updateContact, orientation, locked, face
         childCount(0, root)
         var newHeight = faceoffToggle ? d3.max(levelWidth) * 70 : d3.max(levelWidth) * 55 // 25 pixels per line
         tree = tree.size([newHeight, viewerWidth])
-
         // Compute the new tree layout.
         var nodes = tree.nodes(root).reverse()
         var links = tree.links(nodes)
@@ -625,7 +624,7 @@ export default function (treeData, $el, updateContact, orientation, locked, face
                 .attr('x', 10)
                 .text(function (d) {
                     return d.contact.faceoff
-                })        
+                })
         }
 
 
@@ -731,7 +730,6 @@ export default function (treeData, $el, updateContact, orientation, locked, face
     root = treeData
     root.x0 = viewerHeight / 2
     root.y0 = 0
-
     // Layout the tree initially and center on the root node.
     update(root)
     centerNode(root)
