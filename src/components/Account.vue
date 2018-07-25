@@ -82,12 +82,16 @@
                     <at-button :type="orientation === 'vertical' ? 'primary' : ''" @click="orientation = 'vertical'">Vertical</at-button>
                   </at-button-group>
                   <at-button-group style="margin-right: 10px;">
+                    <at-button :type="faceoff ? 'primary' : ''" @click="faceoff = true">Face-off Showing</at-button>
+                    <at-button :type="!faceoff ? 'primary' : ''" @click="faceoff = false">Face-off Hidden</at-button>
+                  </at-button-group>
+                  <at-button-group style="margin-right: 10px;">
                     <at-button :type="locked ? 'primary' : ''" @click="locked = true">Locked</at-button>
                     <at-button :type="!locked ? 'primary' : ''" @click="locked = false">Unlocked</at-button>
                   </at-button-group>
                   <at-button :disabled="!zoomedContact ? 'disabled' : false" type="primary" @click="zoomedContact = null">Clear Zoom</at-button>
                 </div>
-                <TreeThree :contacts="contacts" :orientation="orientation" :locked="locked" :zoomedContact="zoomedContact" :hoveredContact="hoveredContact"></TreeThree>
+                <TreeThree :contacts="contacts" :orientation="orientation" :locked="locked" :faceoff="faceoff" :zoomedContact="zoomedContact" :hoveredContact="hoveredContact"></TreeThree>
             </div>
         </div>
         </div>
@@ -134,6 +138,7 @@ export default {
             modalOn: false,
             orientation: 'horizontal',
             locked: true,
+            faceoff: true,
             zoomedContact: null,
             hoveredContact: null
         }
@@ -191,7 +196,7 @@ export default {
             return contact.parentId ? this.contactMap[contact.parentId] : this.salesforceContactMap[contact.reportstoid]
         },
         openModal (contact) {
-            this.modalContact = contact
+            this.modalContact = JSON.parse(JSON.stringify(contact))
             this.modalOn = true
         },
         zoomTo (contact) {

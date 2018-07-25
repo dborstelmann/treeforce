@@ -9,7 +9,7 @@ import Tree from './dndTree'
 
 export default {
     name: 'tree-three',
-    props: ['contacts', 'orientation', 'locked', 'zoomedContact', 'hoveredContact'],
+    props: ['contacts', 'orientation', 'locked', 'faceoff', 'zoomedContact', 'hoveredContact'],
     mounted () {
         this.buildTree()
     },
@@ -29,6 +29,9 @@ export default {
             this.buildTree()
         },
         locked () {
+            this.buildTree()
+        },
+        faceoff () {
             this.buildTree()
         },
         root () {
@@ -111,7 +114,7 @@ export default {
         },
         buildTree () {
             if (this.contacts.length) {
-                Tree(this.hierarchyContacts(this.root), this.$el, this.updateParent, this.orientation, this.locked)
+                Tree(this.hierarchyContacts(this.root), this.$el, this.updateParent, this.orientation, this.locked, this.faceoff)
             }
         },
         updateParent (updatedContact) {

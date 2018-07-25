@@ -30,7 +30,7 @@ import * as d3 from 'd3'
 import _ from 'underscore'
 
 // Get JSON data
-export default function (treeData, $el, updateContact, orientation, locked) {
+export default function (treeData, $el, updateContact, orientation, locked, faceoffToggle) {
     var nodes = null
     var domNode = null
     var x = null
@@ -385,8 +385,6 @@ export default function (treeData, $el, updateContact, orientation, locked) {
           x = 20
           y = -viewerHeight / 2
         }
-        console.log(x);
-        console.log(y);
         d3.select('g').transition()
             .duration(duration)
             .attr('transform', 'translate(' + x + ',' + y + ')scale(' + scale + ')')
@@ -432,7 +430,7 @@ export default function (treeData, $el, updateContact, orientation, locked) {
             }
         }
         childCount(0, root)
-        var newHeight = d3.max(levelWidth) * 55 // 25 pixels per line
+        var newHeight = faceoffToggle ? d3.max(levelWidth) * 70 : d3.max(levelWidth) * 55 // 25 pixels per line
         tree = tree.size([newHeight, viewerWidth])
 
         // Compute the new tree layout.
@@ -458,7 +456,13 @@ export default function (treeData, $el, updateContact, orientation, locked) {
                 var nodesInLevel = _.where(nodes, { depth: n.depth })
                 var maxLength = 0
                 _.each(nodesInLevel, function (iN) {
-                    var longerText = iN.name.length > iN.contact.titleOverride ? iN.name : iN.contact.titleOverride
+                    var longerText = iN.name
+                    if (iN.contact.titleOverride && iN.contact.titleOverride.length > longerText.length) {
+                        longerText = iN.contact.titleOverride
+                    }
+                    if (iN.contact.faceoff && iN.contact.faceoff.length > longerText.length) {
+                        longerText = iN.contact.faceoff
+                    }
                     maxLength = Math.max(getWidthOfText(longerText, 'sans-serif', '11px'), maxLength)
                 })
                 heightMap[n.depth] = maxLength
@@ -568,6 +572,27 @@ export default function (treeData, $el, updateContact, orientation, locked) {
             .style('fill-opacity', 0)
             .style('fill', '#777')
 
+        if (faceoffToggle) {
+            nodeEnter.append('text')
+                .attr('x', 10)
+                .attr('dy', function (d) {
+                    return d.children || d._children ? '2.2em' : '2.4em'
+                })
+                .attr('transform', function () {
+                    if (orientation === 'vertical') {
+                      return 'rotate(90)'
+                    }
+                    return ''
+                })
+                .attr('class', 'faceoffText')
+                .text(function (d) {
+                    return d.contact.faceoff
+                })
+                .style('font-style', 'italic')
+                .style('fill-opacity', 0)
+                .style('fill', '#3473e7')
+        }
+
         // phantom node to give us mouseover in a radius around it
         nodeEnter.append('circle')
             .attr('class', 'ghostCircle')
@@ -594,6 +619,15 @@ export default function (treeData, $el, updateContact, orientation, locked) {
             .text(function (d) {
                 return d.contact.titleOverride
             })
+
+        if (faceoffToggle) {
+            node.select('faceoffText')
+                .attr('x', 10)
+                .text(function (d) {
+                    return d.contact.faceoff
+                })        
+        }
+
 
         // Change the circle fill depending on whether it has children and is collapsed
         node.select('circle.nodeCircle')
